@@ -16,12 +16,12 @@ import {
   ClipboardList,
   FileText,
   BarChart3,
+  Building2,
   LogOut,
   Menu,
 } from "lucide-react";
-import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { useProfile, useIsAdmin } from "@/lib/app-data";
+import { useProfile, useIsAdmin, useIsSuperAdmin } from "@/lib/app-data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -132,9 +132,11 @@ function AuthenticatedLayout() {
         </nav>
         <div className="mt-4 space-y-2 border-t border-sidebar-border pt-4 text-sm">
           <div className="px-3">
-            <p className="font-medium">{profile.full_name || "Usuário"}</p>
-            <p className="text-xs opacity-70">{profile.companies?.name}</p>
-            <p className="text-xs opacity-70">{isAdmin ? "Administrador" : "Técnico"}</p>
+            <p className="font-medium">{profile?.full_name || "Usuário"}</p>
+            <p className="text-xs opacity-70">{profile?.companies?.name}</p>
+            <p className="text-xs opacity-70">
+              {isSuperAdmin ? "Super Admin" : isAdmin ? "Administrador" : "Técnico"}
+            </p>
           </div>
           <button
             onClick={handleSignOut}

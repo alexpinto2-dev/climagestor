@@ -89,6 +89,17 @@ export function useIsAdmin() {
   });
 }
 
+export function useIsSuperAdmin() {
+  return useQuery({
+    queryKey: ["is-super-admin"],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("is_super_admin");
+      if (error) return false;
+      return data === true;
+    },
+  });
+}
+
 export function useClients() {
   return useQuery({
     queryKey: ["clients"],

@@ -30,11 +30,6 @@ const loginSchema = z.object({
   password: z.string().min(6, "A senha deve ter ao menos 6 caracteres").max(72),
 });
 
-const signupSchema = loginSchema.extend({
-  fullName: z.string().trim().min(2, "Informe seu nome").max(120),
-  companyName: z.string().trim().min(2, "Informe o nome da empresa").max(150),
-});
-
 function AuthPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -52,51 +47,6 @@ function AuthPage() {
     const { error } = await supabase.auth.signInWithPassword(parsed.data);
     setLoading(false);
     if (error) return toast.error("Não foi possível entrar. Verifique e-mail e senha.");
-    navigate({ to: "/painel" });
-  }
-
-  async function handleSignup(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const form = new FormData(e.currentTarget);
-    const parsed = signupSchema.safeParse({
-      email: form.get("email"),
-      password: form.get("password"),
-      fullName: form.get("fullName"),
-      companyName: form.get("companyName"),
-    });
-    if (!parsed.success) return toast.error(parsed.error.issues[0].message);
-
-    setLoading(true);
-    const { data, error } = await supabase.auth.signUp({
-      email: parsed.data.email,
-      password: parsed.data.password,
-      options: {
-        emailRedirectTo: window.location.origin,
-        data: { full_name: parsed.data.fullName },
-      },
-    });
-
-    if (error) {
-      setLoading(false);
-      return toast.error(
-        error.message.includes("already")
-          ? "Este e-mail já está cadastrado."
-          : "Não foi possível criar a conta.",
-      );
-    }
-
-    if (!data.session) {
-      setLoading(false);
-      return toast.success("Confirme seu e-mail para concluir o cadastro.");
-    }
-
-    const { error: rpcError } = await supabase.rpc("setup_company", {
-      p_company_name: parsed.data.companyName,
-      p_full_name: parsed.data.fullName,
-    });
-    setLoading(false);
-    if (rpcError) return toast.error("Conta criada, mas houve um erro ao registrar a empresa.");
-    toast.success("Empresa criada com sucesso!");
     navigate({ to: "/painel" });
   }
 
@@ -119,55 +69,24 @@ function AuthPage() {
         <Card>
           <CardHeader>
             <CardTitle>Acesse sua conta</CardTitle>
-            <CardDescription>Gestão para empresas de climatização em Aracaju.</CardDescription>
+            <CardDescription>
+              O acesso é criado pelo administrador do sistema. Fale com ele caso não tenha login.
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="login">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="login">Entrar</TabsTrigger>
-                <TabsTrigger value="signup">Criar empresa</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="login">
-                <form onSubmit={handleLogin} className="space-y-4 pt-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="login-email">E-mail</Label>
-                    <Input id="login-email" name="email" type="email" required maxLength={255} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="login-password">Senha</Label>
-                    <Input id="login-password" name="password" type="password" required maxLength={72} />
-                  </div>
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    Entrar
-                  </Button>
-                </form>
-              </TabsContent>
-
-              <TabsContent value="signup">
-                <form onSubmit={handleSignup} className="space-y-4 pt-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-company">Nome da empresa</Label>
-                    <Input id="signup-company" name="companyName" required maxLength={150} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-name">Seu nome</Label>
-                    <Input id="signup-name" name="fullName" required maxLength={120} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-email">E-mail</Label>
-                    <Input id="signup-email" name="email" type="email" required maxLength={255} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-password">Senha</Label>
-                    <Input id="signup-password" name="password" type="password" required maxLength={72} />
-                  </div>
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    Criar empresa
-                  </Button>
-                </form>
-              </TabsContent>
-            </Tabs>
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="login-email">E-mail</Label>
+                <Input id="login-email" name="email" type="email" required maxLength={255} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="login-password">Senha</Label>
+                <Input id="login-password" name="password" type="password" required maxLength={72} />
+              </div>
+              <Button type="submit" className="w-full" disabled={loading}>
+                Entrar
+              </Button>
+            </form>
 
             <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
               <span className="h-px flex-1 bg-border" /> ou <span className="h-px flex-1 bg-border" />
@@ -181,3 +100,4 @@ function AuthPage() {
     </div>
   );
 }
+

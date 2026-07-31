@@ -55,12 +55,13 @@ function Landing() {
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Button asChild size="lg">
-              <Link to="/auth">Criar conta da empresa</Link>
-            </Button>
-            <Button asChild size="lg" variant="outline">
-              <Link to="/auth">Já tenho conta</Link>
+              <Link to="/auth">Entrar no sistema</Link>
             </Button>
           </div>
+          <p className="mt-3 text-sm text-muted-foreground">
+            Os acessos são criados pelo administrador do sistema.
+          </p>
+
         </section>
 
         <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

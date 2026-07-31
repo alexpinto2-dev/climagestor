@@ -66,6 +66,7 @@ export type Database = {
       }
       companies: {
         Row: {
+          active: boolean
           city: string
           cnpj: string | null
           created_at: string
@@ -76,6 +77,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          active?: boolean
           city?: string
           cnpj?: string | null
           created_at?: string
@@ -86,6 +88,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          active?: boolean
           city?: string
           cnpj?: string | null
           created_at?: string
@@ -265,6 +268,21 @@ export type Database = {
           },
         ]
       }
+      super_admins: {
+        Row: {
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       technicians: {
         Row: {
           active: boolean
@@ -352,6 +370,7 @@ export type Database = {
         Returns: boolean
       }
       is_company_admin: { Args: never; Returns: boolean }
+      is_super_admin: { Args: never; Returns: boolean }
       setup_company: {
         Args: { p_company_name: string; p_full_name: string; p_phone?: string }
         Returns: string

@@ -371,10 +371,6 @@ export type Database = {
       }
       is_company_admin: { Args: never; Returns: boolean }
       is_super_admin: { Args: never; Returns: boolean }
-      setup_company: {
-        Args: { p_company_name: string; p_full_name: string; p_phone?: string }
-        Returns: string
-      }
     }
     Enums: {
       app_role: "admin" | "tecnico"

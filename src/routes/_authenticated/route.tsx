@@ -47,52 +47,21 @@ const navItems = [
   { to: "/relatorios", label: "Relatórios", icon: BarChart3, adminOnly: true },
 ] as const;
 
-function OnboardingCompany() {
-  const queryClient = useQueryClient();
-  const [loading, setLoading] = useState(false);
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const form = new FormData(e.currentTarget);
-    const companyName = String(form.get("companyName") ?? "").trim();
-    const fullName = String(form.get("fullName") ?? "").trim();
-    if (companyName.length < 2 || fullName.length < 2) {
-      return toast.error("Preencha o nome da empresa e o seu nome.");
-    }
-    setLoading(true);
-    const { error } = await supabase.rpc("setup_company", {
-      p_company_name: companyName,
-      p_full_name: fullName,
-    });
-    setLoading(false);
-    if (error) return toast.error("Não foi possível criar a empresa.");
-    toast.success("Empresa criada!");
-    await queryClient.invalidateQueries();
-  }
-
+function NoCompany({ onSignOut }: { onSignOut: () => void }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-secondary px-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Cadastre sua empresa</CardTitle>
+          <CardTitle>Conta sem empresa vinculada</CardTitle>
           <CardDescription>
-            Sua conta ainda não está vinculada a uma empresa. Crie a sua para começar.
+            Sua conta ainda não está vinculada a nenhuma empresa. Peça ao administrador do sistema
+            para liberar seu acesso.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="companyName">Nome da empresa</Label>
-              <Input id="companyName" name="companyName" required maxLength={150} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="fullName">Seu nome</Label>
-              <Input id="fullName" name="fullName" required maxLength={120} />
-            </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              Criar empresa
-            </Button>
-          </form>
+          <Button variant="outline" className="w-full" onClick={onSignOut}>
+            Sair
+          </Button>
         </CardContent>
       </Card>
     </div>
@@ -104,6 +73,7 @@ function AuthenticatedLayout() {
   const queryClient = useQueryClient();
   const { data: profile, isLoading } = useProfile();
   const { data: isAdmin } = useIsAdmin();
+  const { data: isSuperAdmin, isLoading: loadingSuper } = useIsSuperAdmin();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [open, setOpen] = useState(false);
 
@@ -114,7 +84,7 @@ function AuthenticatedLayout() {
     navigate({ to: "/auth", replace: true });
   }
 
-  if (isLoading) {
+  if (isLoading || loadingSuper) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-secondary text-muted-foreground">
         Carregando...
@@ -122,9 +92,15 @@ function AuthenticatedLayout() {
     );
   }
 
-  if (!profile) return <OnboardingCompany />;
+  if (!profile && !isSuperAdmin) return <NoCompany onSignOut={handleSignOut} />;
 
-  const items = navItems.filter((item) => !item.adminOnly || isAdmin);
+  const items = [
+    ...(isSuperAdmin
+      ? [{ to: "/empresas", label: "Empresas", icon: Building2, adminOnly: false } as const]
+      : []),
+    ...(profile ? navItems.filter((item) => !item.adminOnly || isAdmin || isSuperAdmin) : []),
+  ];
+
 
   return (
     <div className="flex min-h-screen bg-secondary">

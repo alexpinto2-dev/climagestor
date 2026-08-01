@@ -14,6 +14,13 @@ export const serviceTypeLabels: Record<string, string> = {
   manutencao_corretiva: "Manutenção corretiva",
   limpeza: "Limpeza",
   recarga_gas: "Recarga de gás",
+  outro: "Outro",
+};
+
+export const orderOriginLabels: Record<string, string> = {
+  manual: "Manual",
+  whatsapp: "WhatsApp",
+  ia: "IA",
 };
 
 export const orderStatusLabels: Record<string, string> = {

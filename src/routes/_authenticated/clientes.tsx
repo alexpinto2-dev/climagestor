@@ -305,6 +305,15 @@ function Clientes() {
           </form>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={!!history} onOpenChange={(v) => !v && setHistory(null)}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{history?.name}</DialogTitle>
+          </DialogHeader>
+          {history && <ClientHistory client={history} />}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

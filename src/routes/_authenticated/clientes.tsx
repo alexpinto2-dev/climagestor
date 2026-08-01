@@ -121,6 +121,7 @@ function Clientes() {
   const [search, setSearch] = useState("");
   const [editing, setEditing] = useState<Client | null>(null);
   const [open, setOpen] = useState(false);
+  const [history, setHistory] = useState<Client | null>(null);
 
   const save = useMutation({
     mutationFn: async (values: z.infer<typeof schema>) => {

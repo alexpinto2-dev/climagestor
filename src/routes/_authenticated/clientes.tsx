@@ -1,11 +1,22 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, History } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
-import { useClients, useIsAdmin, useProfile, clientTypeLabels, type Client } from "@/lib/app-data";
+import {
+  useClients,
+  useIsAdmin,
+  useProfile,
+  useClientOrders,
+  clientTypeLabels,
+  orderStatusLabels,
+  serviceTypeLabels,
+  formatCurrency,
+  formatDateTime,
+  type Client,
+} from "@/lib/app-data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,6 +37,57 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
+function ClientHistory({ client }: { client: Client }) {
+  const { data: orders = [], isLoading } = useClientOrders(client.id);
+  const total = orders
+    .filter((o) => o.status === "concluida")
+    .reduce((sum, o) => sum + Number(o.amount ?? 0), 0);
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-lg border border-border bg-muted/40 p-3 text-sm">
+        <p className="text-muted-foreground">
+          {[client.phone, client.email].filter(Boolean).join(" • ") || "Sem contato"}
+        </p>
+        <p className="text-muted-foreground">
+          {[client.address, client.neighborhood].filter(Boolean).join(" • ") || "Sem endereço"}
+        </p>
+        {client.notes && <p className="mt-2 text-foreground">{client.notes}</p>}
+      </div>
+      <div className="flex gap-4 text-sm">
+        <span className="text-muted-foreground">
+          Atendimentos: <strong className="text-foreground">{orders.length}</strong>
+        </span>
+        <span className="text-muted-foreground">
+          Faturado: <strong className="text-primary">{formatCurrency(total)}</strong>
+        </span>
+      </div>
+      <div className="space-y-2">
+        {isLoading && <p className="text-sm text-muted-foreground">Carregando histórico...</p>}
+        {!isLoading && orders.length === 0 && (
+          <p className="text-sm text-muted-foreground">Nenhum serviço registrado para este cliente.</p>
+        )}
+        {orders.map((o) => (
+          <div key={o.id} className="rounded-lg border border-border p-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="text-sm font-medium text-foreground">{serviceTypeLabels[o.service_type]}</p>
+              <Badge variant="secondary">{orderStatusLabels[o.status]}</Badge>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {formatDateTime(o.scheduled_at)} • {o.technicians?.name ?? "Sem técnico"}
+              {o.amount != null ? ` • ${formatCurrency(Number(o.amount))}` : ""}
+            </p>
+            {o.reported_problem && (
+              <p className="mt-1 text-sm text-muted-foreground">{o.reported_problem}</p>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 
 export const Route = createFileRoute("/_authenticated/clientes")({
   head: () => ({

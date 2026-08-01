@@ -14,6 +14,13 @@ export const serviceTypeLabels: Record<string, string> = {
   manutencao_corretiva: "Manutenção corretiva",
   limpeza: "Limpeza",
   recarga_gas: "Recarga de gás",
+  outro: "Outro",
+};
+
+export const orderOriginLabels: Record<string, string> = {
+  manual: "Manual",
+  whatsapp: "WhatsApp",
+  ia: "IA",
 };
 
 export const orderStatusLabels: Record<string, string> = {
@@ -154,6 +161,22 @@ export function useQuotes() {
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data as QuoteWithClient[];
+    },
+  });
+}
+
+export function useClientOrders(clientId: string | null) {
+  return useQuery({
+    queryKey: ["service_orders", "client", clientId],
+    enabled: !!clientId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("service_orders")
+        .select("*, clients(name), technicians(name)")
+        .eq("client_id", clientId!)
+        .order("scheduled_at", { ascending: false });
+      if (error) throw error;
+      return data as OrderWithRelations[];
     },
   });
 }

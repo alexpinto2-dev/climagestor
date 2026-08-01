@@ -197,6 +197,7 @@ export type Database = {
       }
       service_orders: {
         Row: {
+          address: string | null
           amount: number | null
           btus: number | null
           client_id: string
@@ -206,6 +207,10 @@ export type Database = {
           description: string | null
           equipment: string | null
           id: string
+          internal_notes: string | null
+          neighborhood: string | null
+          origin: Database["public"]["Enums"]["order_origin"]
+          reported_problem: string | null
           scheduled_at: string
           service_type: Database["public"]["Enums"]["service_type"]
           status: Database["public"]["Enums"]["order_status"]
@@ -213,6 +218,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          address?: string | null
           amount?: number | null
           btus?: number | null
           client_id: string
@@ -222,6 +228,10 @@ export type Database = {
           description?: string | null
           equipment?: string | null
           id?: string
+          internal_notes?: string | null
+          neighborhood?: string | null
+          origin?: Database["public"]["Enums"]["order_origin"]
+          reported_problem?: string | null
           scheduled_at?: string
           service_type?: Database["public"]["Enums"]["service_type"]
           status?: Database["public"]["Enums"]["order_status"]
@@ -229,6 +239,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          address?: string | null
           amount?: number | null
           btus?: number | null
           client_id?: string
@@ -238,6 +249,10 @@ export type Database = {
           description?: string | null
           equipment?: string | null
           id?: string
+          internal_notes?: string | null
+          neighborhood?: string | null
+          origin?: Database["public"]["Enums"]["order_origin"]
+          reported_problem?: string | null
           scheduled_at?: string
           service_type?: Database["public"]["Enums"]["service_type"]
           status?: Database["public"]["Enums"]["order_status"]
@@ -375,6 +390,7 @@ export type Database = {
     Enums: {
       app_role: "admin" | "tecnico"
       client_type: "residencial" | "comercial"
+      order_origin: "manual" | "whatsapp" | "ia"
       order_status: "agendada" | "em_andamento" | "concluida" | "cancelada"
       quote_status: "rascunho" | "enviado" | "aprovado" | "recusado"
       service_type:
@@ -383,6 +399,7 @@ export type Database = {
         | "manutencao_corretiva"
         | "limpeza"
         | "recarga_gas"
+        | "outro"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -512,6 +529,7 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "tecnico"],
       client_type: ["residencial", "comercial"],
+      order_origin: ["manual", "whatsapp", "ia"],
       order_status: ["agendada", "em_andamento", "concluida", "cancelada"],
       quote_status: ["rascunho", "enviado", "aprovado", "recusado"],
       service_type: [
@@ -520,6 +538,7 @@ export const Constants = {
         "manutencao_corretiva",
         "limpeza",
         "recarga_gas",
+        "outro",
       ],
     },
   },

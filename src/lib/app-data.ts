@@ -164,3 +164,19 @@ export function useQuotes() {
     },
   });
 }
+
+export function useClientOrders(clientId: string | null) {
+  return useQuery({
+    queryKey: ["service_orders", "client", clientId],
+    enabled: !!clientId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("service_orders")
+        .select("*, clients(name), technicians(name)")
+        .eq("client_id", clientId!)
+        .order("scheduled_at", { ascending: false });
+      if (error) throw error;
+      return data as OrderWithRelations[];
+    },
+  });
+}

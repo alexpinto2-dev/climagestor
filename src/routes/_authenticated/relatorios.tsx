@@ -39,9 +39,12 @@ function Relatorios() {
     return d >= from && d <= to;
   });
 
-  const revenue = inRange
-    .filter((o) => o.status === "concluida")
-    .reduce((s, o) => s + Number(o.amount ?? 0), 0);
+  const done = inRange.filter((o) => o.status === "concluida");
+  const revenue = done.reduce((s, o) => s + Number(o.amount ?? 0), 0);
+  const withAmount = done.filter((o) => o.amount != null);
+  const ticket = withAmount.length
+    ? withAmount.reduce((s, o) => s + Number(o.amount), 0) / withAmount.length
+    : 0;
 
   const byStatus = Object.keys(orderStatusLabels).map((k) => ({
     label: orderStatusLabels[k],

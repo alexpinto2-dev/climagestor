@@ -14,6 +14,7 @@ import {
   orderStatusLabels,
   serviceTypeLabels,
   formatCurrency,
+  formatDate,
   formatDateTime,
   type Client,
 } from "@/lib/app-data";

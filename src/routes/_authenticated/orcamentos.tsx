@@ -108,8 +108,35 @@ function Orcamentos() {
       const { error } = await supabase.from("quotes").delete().eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["quotes"] }),
+    onSuccess: () => {
+      toast.success("Orçamento removido.");
+      queryClient.invalidateQueries({ queryKey: ["quotes"] });
+    },
     onError: () => toast.error("Não foi possível remover o orçamento."),
+  });
+
+  const convert = useMutation({
+    mutationFn: async (quote: (typeof quotes)[number]) => {
+      const description = (quote.items as unknown as QuoteItem[] | null)
+        ?.map((i) => `${i.quantity}x ${i.description}`)
+        .join(" | ");
+      const { error } = await supabase.from("service_orders").insert({
+        company_id: quote.company_id,
+        client_id: quote.client_id,
+        service_type: "outro",
+        description: description || `Orçamento ${quote.number}`,
+        amount: Number(quote.total),
+        status: "agendada",
+        origin: "manual",
+        scheduled_at: new Date().toISOString(),
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Ordem de serviço criada a partir do orçamento.");
+      queryClient.invalidateQueries({ queryKey: ["service_orders"] });
+    },
+    onError: () => toast.error("Não foi possível converter o orçamento."),
   });
 
   function updateItem(index: number, patch: Partial<QuoteItem>) {
@@ -118,8 +145,8 @@ function Orcamentos() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-3 sm:flex sm:flex-wrap sm:items-center sm:justify-between">
+        <div className="min-w-0">
           <h1 className="text-2xl font-bold text-foreground">Orçamentos</h1>
           <p className="text-sm text-muted-foreground">Propostas enviadas aos clientes.</p>
         </div>
@@ -129,24 +156,37 @@ function Orcamentos() {
       </div>
 
       <div className="grid gap-3">
-        {isLoading && <p className="text-sm text-muted-foreground">Carregando...</p>}
+        {isLoading && <p className="text-sm text-muted-foreground">Carregando orçamentos...</p>}
         {!isLoading && quotes.length === 0 && (
           <p className="text-sm text-muted-foreground">Nenhum orçamento cadastrado.</p>
         )}
         {quotes.map((q) => (
           <Card key={q.id}>
-            <CardContent className="flex flex-wrap items-center justify-between gap-3 p-4">
-              <div>
-                <div className="flex items-center gap-2">
+            <CardContent className="grid grid-cols-[minmax(0,1fr)] gap-3 p-4 sm:flex sm:flex-wrap sm:items-center sm:justify-between">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
                   <p className="font-medium text-foreground">{q.number}</p>
                   <Badge variant="secondary">{quoteStatusLabels[q.status]}</Badge>
                 </div>
-                <p className="text-sm text-muted-foreground">
+                <p className="truncate text-sm text-muted-foreground">
                   {q.clients?.name ?? "Cliente"} • Validade {formatDate(q.valid_until)}
                 </p>
-                <p className="text-sm font-medium text-primary">{formatCurrency(Number(q.total))}</p>
+                <p className="text-sm text-muted-foreground">
+                  {((q.items as unknown as QuoteItem[] | null) ?? []).length} item(ns)
+                </p>
+                <p className="text-lg font-semibold text-primary">{formatCurrency(Number(q.total))}</p>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
+                {q.status === "aprovado" && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    disabled={convert.isPending}
+                    onClick={() => convert.mutate(q)}
+                  >
+                    <FileCheck2 className="mr-2 h-4 w-4" /> Gerar ordem
+                  </Button>
+                )}
                 <Select value={q.status} onValueChange={(value) => changeStatus.mutate({ id: q.id, value })}>
                   <SelectTrigger className="w-40 bg-background">
                     <SelectValue />
@@ -167,6 +207,7 @@ function Orcamentos() {
           </Card>
         ))}
       </div>
+
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">

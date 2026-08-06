@@ -35,6 +35,7 @@ export const quoteStatusLabels: Record<string, string> = {
   enviado: "Enviado",
   aprovado: "Aprovado",
   recusado: "Recusado",
+  expirado: "Expirado",
 };
 
 export const clientTypeLabels: Record<string, string> = {

@@ -1,5 +1,12 @@
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { CalendarClock, ClipboardList, CheckCircle2, DollarSign } from "lucide-react";
+import {
+  CalendarClock,
+  ClipboardList,
+  CheckCircle2,
+  DollarSign,
+  TrendingUp,
+} from "lucide-react";
 import {
   useOrders,
   formatCurrency,
@@ -9,6 +16,7 @@ import {
 } from "@/lib/app-data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/painel")({
   head: () => ({
@@ -24,28 +32,50 @@ export const Route = createFileRoute("/_authenticated/painel")({
   component: Painel,
 });
 
+type Period = "hoje" | "semana" | "mes";
+
+const periodLabels: Record<Period, string> = {
+  hoje: "Hoje",
+  semana: "Semana",
+  mes: "Mês",
+};
+
+function periodStart(period: Period) {
+  const now = new Date();
+  if (period === "hoje") return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  if (period === "semana") {
+    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    start.setDate(start.getDate() - start.getDay());
+    return start;
+  }
+  return new Date(now.getFullYear(), now.getMonth(), 1);
+}
+
 function Painel() {
-  const { data: orders = [], isLoading } = useOrders();
+  const { data: orders = [], isLoading, isError } = useOrders();
+  const [period, setPeriod] = useState<Period>("mes");
 
   const now = new Date();
-  const monthOrders = orders.filter((o) => {
-    const d = new Date(o.scheduled_at);
-    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-  });
+  const start = periodStart(period);
+  const inPeriod = orders.filter((o) => new Date(o.scheduled_at) >= start);
   const todayOrders = orders.filter(
     (o) => new Date(o.scheduled_at).toDateString() === now.toDateString(),
   );
-  const completed = monthOrders.filter((o) => o.status === "concluida");
+  const completed = inPeriod.filter((o) => o.status === "concluida");
+  const revenue = completed.reduce((s, o) => s + Number(o.amount ?? 0), 0);
   const withAmount = completed.filter((o) => o.amount != null);
   const ticket = withAmount.length
     ? withAmount.reduce((s, o) => s + Number(o.amount), 0) / withAmount.length
     : 0;
 
+  const suffix = period === "hoje" ? "hoje" : period === "semana" ? "na semana" : "no mês";
+
   const cards = [
-    { label: "Ordens no mês", value: String(monthOrders.length), icon: ClipboardList },
+    { label: `Ordens ${suffix}`, value: String(inPeriod.length), icon: ClipboardList },
     { label: "Agendadas para hoje", value: String(todayOrders.length), icon: CalendarClock },
-    { label: "Concluídas no mês", value: String(completed.length), icon: CheckCircle2 },
+    { label: `Concluídas ${suffix}`, value: String(completed.length), icon: CheckCircle2 },
     { label: "Ticket médio", value: formatCurrency(ticket), icon: DollarSign },
+    { label: `Faturamento ${suffix}`, value: formatCurrency(revenue), icon: TrendingUp },
   ];
 
   const upcoming = [...orders]
@@ -55,17 +85,40 @@ function Painel() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">Painel</h1>
-        <p className="text-sm text-muted-foreground">Resumo da operação da sua empresa.</p>
-      </div>
+      <header className="grid grid-cols-[minmax(0,1fr)] gap-4 sm:flex sm:flex-wrap sm:items-end sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-2xl font-bold text-foreground">Painel</h1>
+          <p className="text-sm text-muted-foreground">Resumo da operação da sua empresa.</p>
+        </div>
+        <div className="flex w-full gap-2 sm:w-auto">
+          {(Object.keys(periodLabels) as Period[]).map((p) => (
+            <Button
+              key={p}
+              size="sm"
+              variant={period === p ? "default" : "outline"}
+              className="flex-1 sm:flex-none"
+              onClick={() => setPeriod(p)}
+            >
+              {periodLabels[p]}
+            </Button>
+          ))}
+        </div>
+      </header>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {isError && (
+        <p className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
+          Não foi possível carregar as ordens de serviço. Tente novamente.
+        </p>
+      )}
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {cards.map((c) => (
           <Card key={c.label}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">{c.label}</CardTitle>
-              <c.icon className="h-4 w-4 text-primary" />
+            <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
+              <CardTitle className="min-w-0 truncate text-sm font-medium text-muted-foreground">
+                {c.label}
+              </CardTitle>
+              <c.icon className="h-4 w-4 shrink-0 text-primary" />
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-bold text-foreground">{isLoading ? "—" : c.value}</p>
@@ -79,21 +132,22 @@ function Painel() {
           <CardTitle>Próximos atendimentos</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          {upcoming.length === 0 && (
+          {isLoading && <p className="text-sm text-muted-foreground">Carregando atendimentos...</p>}
+          {!isLoading && upcoming.length === 0 && (
             <p className="text-sm text-muted-foreground">Nenhum atendimento em aberto.</p>
           )}
           {upcoming.map((o) => (
             <div
               key={o.id}
-              className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border p-3"
+              className="grid grid-cols-[minmax(0,1fr)] gap-2 rounded-lg border border-border p-3 sm:flex sm:flex-wrap sm:items-center sm:justify-between"
             >
-              <div>
-                <p className="font-medium text-foreground">{o.clients?.name ?? "Cliente"}</p>
-                <p className="text-sm text-muted-foreground">
+              <div className="min-w-0">
+                <p className="truncate font-medium text-foreground">{o.clients?.name ?? "Cliente"}</p>
+                <p className="truncate text-sm text-muted-foreground">
                   {serviceTypeLabels[o.service_type]} • {o.technicians?.name ?? "Sem técnico"}
                 </p>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-3">
                 <span className="text-sm text-muted-foreground">{formatDateTime(o.scheduled_at)}</span>
                 <Badge variant="secondary">{orderStatusLabels[o.status]}</Badge>
               </div>

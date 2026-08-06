@@ -39,9 +39,12 @@ function Relatorios() {
     return d >= from && d <= to;
   });
 
-  const revenue = inRange
-    .filter((o) => o.status === "concluida")
-    .reduce((s, o) => s + Number(o.amount ?? 0), 0);
+  const done = inRange.filter((o) => o.status === "concluida");
+  const revenue = done.reduce((s, o) => s + Number(o.amount ?? 0), 0);
+  const withAmount = done.filter((o) => o.amount != null);
+  const ticket = withAmount.length
+    ? withAmount.reduce((s, o) => s + Number(o.amount), 0) / withAmount.length
+    : 0;
 
   const byStatus = Object.keys(orderStatusLabels).map((k) => ({
     label: orderStatusLabels[k],
@@ -95,7 +98,7 @@ function Relatorios() {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm text-muted-foreground">Faturamento concluído</CardTitle>
@@ -110,6 +113,14 @@ function Relatorios() {
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold text-foreground">{inRange.length}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-muted-foreground">Ticket médio</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold text-foreground">{formatCurrency(ticket)}</p>
           </CardContent>
         </Card>
         <Card>

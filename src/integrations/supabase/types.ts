@@ -392,7 +392,12 @@ export type Database = {
       client_type: "residencial" | "comercial"
       order_origin: "manual" | "whatsapp" | "ia"
       order_status: "agendada" | "em_andamento" | "concluida" | "cancelada"
-      quote_status: "rascunho" | "enviado" | "aprovado" | "recusado"
+      quote_status:
+        | "rascunho"
+        | "enviado"
+        | "aprovado"
+        | "recusado"
+        | "expirado"
       service_type:
         | "instalacao"
         | "manutencao_preventiva"
@@ -531,7 +536,7 @@ export const Constants = {
       client_type: ["residencial", "comercial"],
       order_origin: ["manual", "whatsapp", "ia"],
       order_status: ["agendada", "em_andamento", "concluida", "cancelada"],
-      quote_status: ["rascunho", "enviado", "aprovado", "recusado"],
+      quote_status: ["rascunho", "enviado", "aprovado", "recusado", "expirado"],
       service_type: [
         "instalacao",
         "manutencao_preventiva",

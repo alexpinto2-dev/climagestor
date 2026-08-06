@@ -40,30 +40,46 @@ import {
 
 function ClientHistory({ client }: { client: Client }) {
   const { data: orders = [], isLoading } = useClientOrders(client.id);
-  const total = orders
-    .filter((o) => o.status === "concluida")
-    .reduce((sum, o) => sum + Number(o.amount ?? 0), 0);
+  const done = orders.filter((o) => o.status === "concluida");
+  const total = done.reduce((sum, o) => sum + Number(o.amount ?? 0), 0);
+  const paid = done.filter((o) => o.amount != null);
+  const ticket = paid.length ? total / paid.length : 0;
+  const last = orders.length
+    ? orders.reduce((a, b) => (new Date(a.scheduled_at) > new Date(b.scheduled_at) ? a : b))
+    : null;
+
+  const stats = [
+    { label: "Atendimentos", value: String(orders.length) },
+    { label: "Faturado", value: formatCurrency(total) },
+    { label: "Ticket médio", value: formatCurrency(ticket) },
+    { label: "Último atendimento", value: last ? formatDate(last.scheduled_at) : "—" },
+  ];
 
   return (
-    <div className="space-y-4">
-      <div className="rounded-lg border border-border bg-muted/40 p-3 text-sm">
-        <p className="text-muted-foreground">
-          {[client.phone, client.email].filter(Boolean).join(" • ") || "Sem contato"}
-        </p>
-        <p className="text-muted-foreground">
-          {[client.address, client.neighborhood].filter(Boolean).join(" • ") || "Sem endereço"}
-        </p>
-        {client.notes && <p className="mt-2 text-foreground">{client.notes}</p>}
+    <div className="space-y-5">
+      <div className="rounded-xl border border-border bg-muted/40 p-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="font-semibold text-foreground">{client.name}</p>
+          <Badge variant="secondary">{clientTypeLabels[client.type]}</Badge>
+        </div>
+        <div className="mt-2 space-y-1 text-sm text-muted-foreground">
+          <p>{[client.phone, client.email].filter(Boolean).join(" • ") || "Sem contato"}</p>
+          <p>{[client.address, client.neighborhood].filter(Boolean).join(" • ") || "Sem endereço"}</p>
+          {client.notes && <p className="pt-1 text-foreground">{client.notes}</p>}
+        </div>
       </div>
-      <div className="flex gap-4 text-sm">
-        <span className="text-muted-foreground">
-          Atendimentos: <strong className="text-foreground">{orders.length}</strong>
-        </span>
-        <span className="text-muted-foreground">
-          Faturado: <strong className="text-primary">{formatCurrency(total)}</strong>
-        </span>
+
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {stats.map((s) => (
+          <div key={s.label} className="rounded-lg border border-border p-3">
+            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{s.label}</p>
+            <p className="mt-1 text-sm font-semibold text-foreground">{s.value}</p>
+          </div>
+        ))}
       </div>
+
       <div className="space-y-2">
+        <p className="text-sm font-medium text-foreground">Atendimentos</p>
         {isLoading && <p className="text-sm text-muted-foreground">Carregando histórico...</p>}
         {!isLoading && orders.length === 0 && (
           <p className="text-sm text-muted-foreground">Nenhum serviço registrado para este cliente.</p>
@@ -72,14 +88,20 @@ function ClientHistory({ client }: { client: Client }) {
           <div key={o.id} className="rounded-lg border border-border p-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p className="text-sm font-medium text-foreground">{serviceTypeLabels[o.service_type]}</p>
-              <Badge variant="secondary">{orderStatusLabels[o.status]}</Badge>
+              <div className="flex items-center gap-2">
+                {o.amount != null && (
+                  <span className="text-sm font-semibold text-primary">
+                    {formatCurrency(Number(o.amount))}
+                  </span>
+                )}
+                <Badge variant="secondary">{orderStatusLabels[o.status]}</Badge>
+              </div>
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="mt-1 text-xs text-muted-foreground">
               {formatDateTime(o.scheduled_at)} • {o.technicians?.name ?? "Sem técnico"}
-              {o.amount != null ? ` • ${formatCurrency(Number(o.amount))}` : ""}
             </p>
             {o.reported_problem && (
-              <p className="mt-1 text-sm text-muted-foreground">{o.reported_problem}</p>
+              <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{o.reported_problem}</p>
             )}
           </div>
         ))}
@@ -87,6 +109,7 @@ function ClientHistory({ client }: { client: Client }) {
     </div>
   );
 }
+
 
 
 export const Route = createFileRoute("/_authenticated/clientes")({

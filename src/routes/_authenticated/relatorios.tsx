@@ -98,7 +98,7 @@ function Relatorios() {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm text-muted-foreground">Faturamento concluído</CardTitle>
@@ -113,6 +113,14 @@ function Relatorios() {
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold text-foreground">{inRange.length}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-muted-foreground">Ticket médio</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold text-foreground">{formatCurrency(ticket)}</p>
           </CardContent>
         </Card>
         <Card>

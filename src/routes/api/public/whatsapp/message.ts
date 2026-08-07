@@ -54,7 +54,7 @@ export const Route = createFileRoute("/api/public/whatsapp/message")({
               message_type: p.message_type ?? "text",
               content: p.content ?? null,
               author_type: p.author_type,
-              metadata: (p.metadata ?? {}) as Record<string, unknown>,
+              metadata: (p.metadata ?? {}) as never,
             },
             { onConflict: "company_id,external_message_id", ignoreDuplicates: true },
           )

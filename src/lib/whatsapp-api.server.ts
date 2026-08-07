@@ -97,7 +97,7 @@ export async function ensureClient(
   const { data, error } = await admin.rpc("wa_upsert_client", {
     p_company_id: companyId,
     p_phone_e164: phone,
-    p_name: name ?? null,
+    p_name: name ?? undefined,
   });
   if (error) throw new Error(error.message);
   return data as { id: string; name: string; phone_e164: string | null };

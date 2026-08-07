@@ -19,6 +19,9 @@ import { Route as AuthenticatedOrdensRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
 import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
 import { Route as AuthenticatedTecnicosRouteImport } from './routes/_authenticated/tecnicos'
+import { Route as ApiPublicWhatsappClientRouteImport } from './routes/api/public/whatsapp/client'
+import { Route as ApiPublicWhatsappMessageRouteImport } from './routes/api/public/whatsapp/message'
+import { Route as ApiPublicWhatsappOrderRouteImport } from './routes/api/public/whatsapp/order'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -69,6 +72,22 @@ const AuthenticatedTecnicosRoute = AuthenticatedTecnicosRouteImport.update({
   path: '/tecnicos',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiPublicWhatsappClientRoute = ApiPublicWhatsappClientRouteImport.update({
+  id: '/api/public/whatsapp/client',
+  path: '/api/public/whatsapp/client',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicWhatsappMessageRoute =
+  ApiPublicWhatsappMessageRouteImport.update({
+    id: '/api/public/whatsapp/message',
+    path: '/api/public/whatsapp/message',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicWhatsappOrderRoute = ApiPublicWhatsappOrderRouteImport.update({
+  id: '/api/public/whatsapp/order',
+  path: '/api/public/whatsapp/order',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -80,6 +99,9 @@ export interface FileRoutesByFullPath {
   '/painel': typeof AuthenticatedPainelRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/tecnicos': typeof AuthenticatedTecnicosRoute
+  '/api/public/whatsapp/client': typeof ApiPublicWhatsappClientRoute
+  '/api/public/whatsapp/message': typeof ApiPublicWhatsappMessageRoute
+  '/api/public/whatsapp/order': typeof ApiPublicWhatsappOrderRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -91,6 +113,9 @@ export interface FileRoutesByTo {
   '/painel': typeof AuthenticatedPainelRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/tecnicos': typeof AuthenticatedTecnicosRoute
+  '/api/public/whatsapp/client': typeof ApiPublicWhatsappClientRoute
+  '/api/public/whatsapp/message': typeof ApiPublicWhatsappMessageRoute
+  '/api/public/whatsapp/order': typeof ApiPublicWhatsappOrderRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -104,6 +129,9 @@ export interface FileRoutesById {
   '/_authenticated/painel': typeof AuthenticatedPainelRoute
   '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
   '/_authenticated/tecnicos': typeof AuthenticatedTecnicosRoute
+  '/api/public/whatsapp/client': typeof ApiPublicWhatsappClientRoute
+  '/api/public/whatsapp/message': typeof ApiPublicWhatsappMessageRoute
+  '/api/public/whatsapp/order': typeof ApiPublicWhatsappOrderRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -117,6 +145,9 @@ export interface FileRouteTypes {
     | '/painel'
     | '/relatorios'
     | '/tecnicos'
+    | '/api/public/whatsapp/client'
+    | '/api/public/whatsapp/message'
+    | '/api/public/whatsapp/order'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -128,6 +159,9 @@ export interface FileRouteTypes {
     | '/painel'
     | '/relatorios'
     | '/tecnicos'
+    | '/api/public/whatsapp/client'
+    | '/api/public/whatsapp/message'
+    | '/api/public/whatsapp/order'
   id:
     | '__root__'
     | '/'
@@ -140,12 +174,18 @@ export interface FileRouteTypes {
     | '/_authenticated/painel'
     | '/_authenticated/relatorios'
     | '/_authenticated/tecnicos'
+    | '/api/public/whatsapp/client'
+    | '/api/public/whatsapp/message'
+    | '/api/public/whatsapp/order'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ApiPublicWhatsappClientRoute: typeof ApiPublicWhatsappClientRoute
+  ApiPublicWhatsappMessageRoute: typeof ApiPublicWhatsappMessageRoute
+  ApiPublicWhatsappOrderRoute: typeof ApiPublicWhatsappOrderRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -220,6 +260,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTecnicosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/whatsapp/client': {
+      id: '/api/public/whatsapp/client'
+      path: '/api/public/whatsapp/client'
+      fullPath: '/api/public/whatsapp/client'
+      preLoaderRoute: typeof ApiPublicWhatsappClientRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/whatsapp/message': {
+      id: '/api/public/whatsapp/message'
+      path: '/api/public/whatsapp/message'
+      fullPath: '/api/public/whatsapp/message'
+      preLoaderRoute: typeof ApiPublicWhatsappMessageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/whatsapp/order': {
+      id: '/api/public/whatsapp/order'
+      path: '/api/public/whatsapp/order'
+      fullPath: '/api/public/whatsapp/order'
+      preLoaderRoute: typeof ApiPublicWhatsappOrderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -250,17 +311,10 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ApiPublicWhatsappClientRoute: ApiPublicWhatsappClientRoute,
+  ApiPublicWhatsappMessageRoute: ApiPublicWhatsappMessageRoute,
+  ApiPublicWhatsappOrderRoute: ApiPublicWhatsappOrderRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

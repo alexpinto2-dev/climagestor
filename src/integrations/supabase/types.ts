@@ -14,6 +14,129 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_interactions: {
+        Row: {
+          client_id: string | null
+          company_id: string
+          conversation_id: string | null
+          created_at: string
+          execution_id: string | null
+          id: string
+          input: Json | null
+          intent: string | null
+          model: string | null
+          output: Json | null
+          tokens_input: number | null
+          tokens_output: number | null
+          tool_input: Json | null
+          tool_name: string | null
+          tool_output: Json | null
+        }
+        Insert: {
+          client_id?: string | null
+          company_id: string
+          conversation_id?: string | null
+          created_at?: string
+          execution_id?: string | null
+          id?: string
+          input?: Json | null
+          intent?: string | null
+          model?: string | null
+          output?: Json | null
+          tokens_input?: number | null
+          tokens_output?: number | null
+          tool_input?: Json | null
+          tool_name?: string | null
+          tool_output?: Json | null
+        }
+        Update: {
+          client_id?: string | null
+          company_id?: string
+          conversation_id?: string | null
+          created_at?: string
+          execution_id?: string | null
+          id?: string
+          input?: Json | null
+          intent?: string | null
+          model?: string | null
+          output?: Json | null
+          tokens_input?: number | null
+          tokens_output?: number | null
+          tool_input?: Json | null
+          tool_name?: string | null
+          tool_output?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_interactions_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_interactions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_interactions_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      audit_log: {
+        Row: {
+          action: string
+          company_id: string
+          created_at: string
+          entity_id: string | null
+          entity_type: string
+          id: string
+          metadata: Json
+          new_data: Json | null
+          old_data: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          company_id: string
+          created_at?: string
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          metadata?: Json
+          new_data?: Json | null
+          old_data?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          company_id?: string
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          metadata?: Json
+          new_data?: Json | null
+          old_data?: Json | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_log_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clients: {
         Row: {
           address: string | null
@@ -25,6 +148,7 @@ export type Database = {
           neighborhood: string | null
           notes: string | null
           phone: string | null
+          phone_e164: string | null
           type: Database["public"]["Enums"]["client_type"]
           updated_at: string
         }
@@ -38,6 +162,7 @@ export type Database = {
           neighborhood?: string | null
           notes?: string | null
           phone?: string | null
+          phone_e164?: string | null
           type?: Database["public"]["Enums"]["client_type"]
           updated_at?: string
         }
@@ -51,6 +176,7 @@ export type Database = {
           neighborhood?: string | null
           notes?: string | null
           phone?: string | null
+          phone_e164?: string | null
           type?: Database["public"]["Enums"]["client_type"]
           updated_at?: string
         }
@@ -99,6 +225,157 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      conversations: {
+        Row: {
+          assigned_to: string | null
+          channel: string
+          client_id: string | null
+          company_id: string
+          context: Json
+          created_at: string
+          id: string
+          intent: string | null
+          last_message_at: string | null
+          phone_e164: string
+          status: string
+          updated_at: string
+          whatsapp_instance_id: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          channel?: string
+          client_id?: string | null
+          company_id: string
+          context?: Json
+          created_at?: string
+          id?: string
+          intent?: string | null
+          last_message_at?: string | null
+          phone_e164: string
+          status?: string
+          updated_at?: string
+          whatsapp_instance_id?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          channel?: string
+          client_id?: string | null
+          company_id?: string
+          context?: Json
+          created_at?: string
+          id?: string
+          intent?: string | null
+          last_message_at?: string | null
+          phone_e164?: string
+          status?: string
+          updated_at?: string
+          whatsapp_instance_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_whatsapp_instance_id_fkey"
+            columns: ["whatsapp_instance_id"]
+            isOneToOne: false
+            referencedRelation: "whatsapp_instances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          author_type: string
+          client_id: string | null
+          company_id: string
+          content: string | null
+          conversation_id: string | null
+          created_at: string
+          direction: string
+          external_message_id: string | null
+          id: string
+          message_type: string
+          metadata: Json
+          whatsapp_instance_id: string | null
+        }
+        Insert: {
+          author_type: string
+          client_id?: string | null
+          company_id: string
+          content?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          direction: string
+          external_message_id?: string | null
+          id?: string
+          message_type?: string
+          metadata?: Json
+          whatsapp_instance_id?: string | null
+        }
+        Update: {
+          author_type?: string
+          client_id?: string | null
+          company_id?: string
+          content?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          direction?: string
+          external_message_id?: string | null
+          id?: string
+          message_type?: string
+          metadata?: Json
+          whatsapp_instance_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_whatsapp_instance_id_fkey"
+            columns: ["whatsapp_instance_id"]
+            isOneToOne: false
+            referencedRelation: "whatsapp_instances"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -205,7 +482,9 @@ export type Database = {
           completed_at: string | null
           created_at: string
           description: string | null
+          duration_minutes: number | null
           equipment: string | null
+          external_ref: string | null
           id: string
           internal_notes: string | null
           neighborhood: string | null
@@ -226,7 +505,9 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           description?: string | null
+          duration_minutes?: number | null
           equipment?: string | null
+          external_ref?: string | null
           id?: string
           internal_notes?: string | null
           neighborhood?: string | null
@@ -247,7 +528,9 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           description?: string | null
+          duration_minutes?: number | null
           equipment?: string | null
+          external_ref?: string | null
           id?: string
           internal_notes?: string | null
           neighborhood?: string | null
@@ -370,6 +653,53 @@ export type Database = {
         }
         Relationships: []
       }
+      whatsapp_instances: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          instance_name: string
+          phone: string | null
+          provider: string
+          settings: Json
+          status: string
+          updated_at: string
+          webhook_secret: string | null
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          instance_name: string
+          phone?: string | null
+          provider?: string
+          settings?: Json
+          status?: string
+          updated_at?: string
+          webhook_secret?: string | null
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          instance_name?: string
+          phone?: string | null
+          provider?: string
+          settings?: Json
+          status?: string
+          updated_at?: string
+          webhook_secret?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_instances_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -386,6 +716,76 @@ export type Database = {
       }
       is_company_admin: { Args: never; Returns: boolean }
       is_super_admin: { Args: never; Returns: boolean }
+      wa_create_order: {
+        Args: {
+          p_address?: string
+          p_amount?: number
+          p_btus?: number
+          p_client_id: string
+          p_company_id: string
+          p_conversation_id?: string
+          p_description?: string
+          p_equipment?: string
+          p_external_ref?: string
+          p_neighborhood?: string
+          p_reported_problem?: string
+          p_scheduled_at?: string
+          p_service_type: Database["public"]["Enums"]["service_type"]
+          p_status?: Database["public"]["Enums"]["order_status"]
+        }
+        Returns: {
+          address: string | null
+          amount: number | null
+          btus: number | null
+          client_id: string
+          company_id: string
+          completed_at: string | null
+          created_at: string
+          description: string | null
+          duration_minutes: number | null
+          equipment: string | null
+          external_ref: string | null
+          id: string
+          internal_notes: string | null
+          neighborhood: string | null
+          origin: Database["public"]["Enums"]["order_origin"]
+          reported_problem: string | null
+          scheduled_at: string
+          service_type: Database["public"]["Enums"]["service_type"]
+          status: Database["public"]["Enums"]["order_status"]
+          technician_id: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "service_orders"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      wa_upsert_client: {
+        Args: { p_company_id: string; p_name?: string; p_phone_e164: string }
+        Returns: {
+          address: string | null
+          company_id: string
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          neighborhood: string | null
+          notes: string | null
+          phone: string | null
+          phone_e164: string | null
+          type: Database["public"]["Enums"]["client_type"]
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "clients"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
     }
     Enums: {
       app_role: "admin" | "tecnico"

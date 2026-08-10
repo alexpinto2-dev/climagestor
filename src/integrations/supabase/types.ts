@@ -303,6 +303,81 @@ export type Database = {
           },
         ]
       }
+      equipments: {
+        Row: {
+          brand: string | null
+          btus: number | null
+          client_id: string
+          company_id: string
+          created_at: string
+          has_maintenance_contract: boolean
+          id: string
+          installed_at: string | null
+          last_maintenance_at: string | null
+          location: string | null
+          maintenance_interval_months: number | null
+          model: string | null
+          next_maintenance_at: string | null
+          notes: string | null
+          serial_number: string | null
+          type: Database["public"]["Enums"]["equipment_type"]
+          updated_at: string
+        }
+        Insert: {
+          brand?: string | null
+          btus?: number | null
+          client_id: string
+          company_id: string
+          created_at?: string
+          has_maintenance_contract?: boolean
+          id?: string
+          installed_at?: string | null
+          last_maintenance_at?: string | null
+          location?: string | null
+          maintenance_interval_months?: number | null
+          model?: string | null
+          next_maintenance_at?: string | null
+          notes?: string | null
+          serial_number?: string | null
+          type?: Database["public"]["Enums"]["equipment_type"]
+          updated_at?: string
+        }
+        Update: {
+          brand?: string | null
+          btus?: number | null
+          client_id?: string
+          company_id?: string
+          created_at?: string
+          has_maintenance_contract?: boolean
+          id?: string
+          installed_at?: string | null
+          last_maintenance_at?: string | null
+          location?: string | null
+          maintenance_interval_months?: number | null
+          model?: string | null
+          next_maintenance_at?: string | null
+          notes?: string | null
+          serial_number?: string | null
+          type?: Database["public"]["Enums"]["equipment_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipments_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipments_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           author_type: string
@@ -484,6 +559,7 @@ export type Database = {
           description: string | null
           duration_minutes: number | null
           equipment: string | null
+          equipment_id: string | null
           external_ref: string | null
           id: string
           internal_notes: string | null
@@ -507,6 +583,7 @@ export type Database = {
           description?: string | null
           duration_minutes?: number | null
           equipment?: string | null
+          equipment_id?: string | null
           external_ref?: string | null
           id?: string
           internal_notes?: string | null
@@ -530,6 +607,7 @@ export type Database = {
           description?: string | null
           duration_minutes?: number | null
           equipment?: string | null
+          equipment_id?: string | null
           external_ref?: string | null
           id?: string
           internal_notes?: string | null
@@ -555,6 +633,13 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_orders_equipment_id_fkey"
+            columns: ["equipment_id"]
+            isOneToOne: false
+            referencedRelation: "equipments"
             referencedColumns: ["id"]
           },
           {
@@ -744,6 +829,7 @@ export type Database = {
           description: string | null
           duration_minutes: number | null
           equipment: string | null
+          equipment_id: string | null
           external_ref: string | null
           id: string
           internal_notes: string | null
@@ -790,6 +876,7 @@ export type Database = {
     Enums: {
       app_role: "admin" | "tecnico"
       client_type: "residencial" | "comercial"
+      equipment_type: "split" | "janela" | "cassete" | "piso_teto" | "outro"
       order_origin: "manual" | "whatsapp" | "ia"
       order_status: "agendada" | "em_andamento" | "concluida" | "cancelada"
       quote_status:
@@ -934,6 +1021,7 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "tecnico"],
       client_type: ["residencial", "comercial"],
+      equipment_type: ["split", "janela", "cassete", "piso_teto", "outro"],
       order_origin: ["manual", "whatsapp", "ia"],
       order_status: ["agendada", "em_andamento", "concluida", "cancelada"],
       quote_status: ["rascunho", "enviado", "aprovado", "recusado", "expirado"],

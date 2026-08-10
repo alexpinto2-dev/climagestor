@@ -84,10 +84,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "description",
         content:
-          "Sistema de gestão para empresas de ar-condicionado em Aracaju: clientes, técnicos, ordens de serviço e orçamentos.",
+          "Controle clientes, técnicos, ordens de serviço e orçamentos da sua empresa de ar-condicionado em Aracaju.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:title", content: "ClimaGestor — Gestão para empresas de climatização" },
+      { name: "twitter:title", content: "ClimaGestor — Gestão para empresas de climatização" },
+      { property: "og:description", content: "Controle clientes, técnicos, ordens de serviço e orçamentos da sua empresa de ar-condicionado em Aracaju." },
+      { name: "twitter:description", content: "Controle clientes, técnicos, ordens de serviço e orçamentos da sua empresa de ar-condicionado em Aracaju." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/3e81e60f-cc1e-4fa0-880e-3fa947a93ac1" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/3e81e60f-cc1e-4fa0-880e-3fa947a93ac1" },
     ],
     links: [
       {

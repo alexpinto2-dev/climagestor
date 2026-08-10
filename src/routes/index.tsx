@@ -11,10 +11,10 @@ export const Route = createFileRoute("/")({
         content:
           "Controle clientes, técnicos, ordens de serviço e orçamentos da sua empresa de ar-condicionado em Aracaju.",
       },
-      { property: "og:title", content: "ClimaGestor — Gestão para climatização" },
+      { property: "og:title", content: "ClimaGestor — Gestão para empresas de climatização" },
       {
         property: "og:description",
-        content: "Ordens de serviço, orçamentos e relatórios para empresas de ar-condicionado.",
+        content: "Controle clientes, técnicos, ordens de serviço e orçamentos da sua empresa de ar-condicionado em Aracaju.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

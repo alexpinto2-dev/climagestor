@@ -585,6 +585,7 @@ function Ordens() {
             </div>
             <div className="grid gap-4 sm:grid-cols-3">
               <div className="space-y-2">
+                <input type="hidden" name="equipment" value={editing?.equipment ?? ""} />
                 <Label htmlFor="equipment_id">Equipamento (opcional)</Label>
                 <Select
                   name="equipment_id"

@@ -12,6 +12,7 @@ import {
   Snowflake,
   LayoutDashboard,
   Users,
+  AirVent,
   Wrench,
   ClipboardList,
   FileText,

@@ -11,6 +11,8 @@ import {
   useTechnicians,
   useIsAdmin,
   useProfile,
+  useClientEquipments,
+  equipmentTypeLabels,
   orderStatusLabels,
   serviceTypeLabels,
   orderOriginLabels,
@@ -71,6 +73,7 @@ const schema = z.object({
   address: z.string().trim().min(3, "Informe o endereço do atendimento").max(255),
   neighborhood: z.string().trim().min(2, "Informe o bairro").max(100),
   equipment: z.string().trim().max(150).optional().or(z.literal("")),
+  equipment_id: z.string().optional(),
   btus: z.string().optional(),
   amount: z.string().optional(),
   internal_notes: z.string().trim().max(1000).optional().or(z.literal("")),
@@ -204,6 +207,8 @@ function Ordens() {
   const [view, setView] = useState<"lista" | "calendario">("lista");
   const [editing, setEditing] = useState<OrderWithRelations | null>(null);
   const [open, setOpen] = useState(false);
+  const [formClientId, setFormClientId] = useState<string | undefined>(undefined);
+  const { data: formEquipments = [] } = useClientEquipments(formClientId);
 
   const save = useMutation({
     mutationFn: async (values: z.infer<typeof schema>) => {
@@ -221,6 +226,7 @@ function Ordens() {
         neighborhood: values.neighborhood,
         internal_notes: values.internal_notes || null,
         equipment: values.equipment || null,
+        equipment_id: values.equipment_id && values.equipment_id !== "nenhum" ? values.equipment_id : null,
         btus: values.btus ? Number(values.btus) : null,
         amount: values.amount ? Number(values.amount) : null,
       };
@@ -264,6 +270,13 @@ function Ordens() {
 
   function openNew() {
     setEditing(null);
+    setFormClientId(undefined);
+    setOpen(true);
+  }
+
+  function openEdit(order: OrderWithRelations) {
+    setEditing(order);
+    setFormClientId(order.client_id);
     setOpen(true);
   }
 
@@ -276,7 +289,7 @@ function Ordens() {
     return true;
   });
 
-  const selectedClient = clients.find((c) => c.id === editing?.client_id);
+  const selectedClient = clients.find((c) => c.id === (formClientId ?? editing?.client_id));
 
   return (
     <div className="space-y-6">
@@ -378,10 +391,7 @@ function Ordens() {
       {view === "calendario" ? (
         <CalendarView
           orders={filtered}
-          onSelect={(o) => {
-            setEditing(o);
-            setOpen(true);
-          }}
+          onSelect={openEdit}
         />
       ) : (
         <div className="grid gap-3">
@@ -418,10 +428,7 @@ function Ordens() {
                   <Button
                     variant="outline"
                     size="icon"
-                    onClick={() => {
-                      setEditing(o);
-                      setOpen(true);
-                    }}
+                    onClick={() => openEdit(o)}
                   >
                     <Pencil className="h-4 w-4" />
                   </Button>
@@ -445,7 +452,12 @@ function Ordens() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="client_id">Cliente</Label>
-              <Select name="client_id" defaultValue={editing?.client_id ?? undefined} disabled={!isAdmin}>
+              <Select
+                name="client_id"
+                value={formClientId}
+                onValueChange={setFormClientId}
+                disabled={!isAdmin}
+              >
                 <SelectTrigger id="client_id">
                   <SelectValue placeholder="Selecione" />
                 </SelectTrigger>
@@ -573,13 +585,26 @@ function Ordens() {
             </div>
             <div className="grid gap-4 sm:grid-cols-3">
               <div className="space-y-2">
-                <Label htmlFor="equipment">Equipamento</Label>
-                <Input
-                  id="equipment"
-                  name="equipment"
-                  defaultValue={editing?.equipment ?? ""}
-                  maxLength={150}
-                />
+                <Label htmlFor="equipment_id">Equipamento (opcional)</Label>
+                <Select
+                  name="equipment_id"
+                  defaultValue={editing?.equipment_id ?? "nenhum"}
+                  disabled={!formClientId}
+                >
+                  <SelectTrigger id="equipment_id">
+                    <SelectValue placeholder="Selecione o cliente primeiro" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="nenhum">Nenhum</SelectItem>
+                    {formEquipments.map((e) => (
+                      <SelectItem key={e.id} value={e.id}>
+                        {[equipmentTypeLabels[e.type], e.location, e.brand, e.model]
+                          .filter(Boolean)
+                          .join(" • ")}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="btus">BTUs</Label>

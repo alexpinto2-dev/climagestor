@@ -7,6 +7,39 @@ export type Technician = Tables<"technicians">;
 export type ServiceOrder = Tables<"service_orders">;
 export type Quote = Tables<"quotes">;
 export type Profile = Tables<"profiles">;
+export type Equipment = Tables<"equipments">;
+
+export const equipmentTypeLabels: Record<string, string> = {
+  split: "Split",
+  janela: "Janela",
+  cassete: "Cassete",
+  piso_teto: "Piso-teto",
+  outro: "Outro",
+};
+
+export const maintenanceIntervalLabels: Record<string, string> = {
+  "3": "A cada 3 meses",
+  "6": "A cada 6 meses",
+  "12": "A cada 12 meses",
+};
+
+/** Dias até a próxima preventiva (negativo = vencida). null quando não há contrato/data. */
+export function daysToMaintenance(nextDate: string | null | undefined) {
+  if (!nextDate) return null;
+  const today = new Date();
+  const start = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const [y, m, d] = nextDate.split("-").map(Number);
+  const next = new Date(y, (m ?? 1) - 1, d ?? 1);
+  return Math.round((+next - +start) / 86400000);
+}
+
+export function maintenanceStatus(nextDate: string | null | undefined, windowDays = 30) {
+  const days = daysToMaintenance(nextDate);
+  if (days === null) return "sem_contrato" as const;
+  if (days < 0) return "vencida" as const;
+  if (days <= windowDays) return "proxima" as const;
+  return "em_dia" as const;
+}
 
 export const serviceTypeLabels: Record<string, string> = {
   instalacao: "Instalação",
@@ -175,6 +208,54 @@ export function useClientOrders(clientId: string | null) {
         .from("service_orders")
         .select("*, clients(name), technicians(name)")
         .eq("client_id", clientId!)
+        .order("scheduled_at", { ascending: false });
+      if (error) throw error;
+      return data as OrderWithRelations[];
+    },
+  });
+}
+
+export type EquipmentWithClient = Equipment & { clients: { name: string } | null };
+
+export function useEquipments() {
+  return useQuery({
+    queryKey: ["equipments"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("equipments")
+        .select("*, clients(name)")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data as EquipmentWithClient[];
+    },
+  });
+}
+
+export function useClientEquipments(clientId: string | null | undefined) {
+  return useQuery({
+    queryKey: ["equipments", "client", clientId],
+    enabled: !!clientId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("equipments")
+        .select("*")
+        .eq("client_id", clientId!)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data as Equipment[];
+    },
+  });
+}
+
+export function useEquipmentOrders(equipmentId: string | null) {
+  return useQuery({
+    queryKey: ["service_orders", "equipment", equipmentId],
+    enabled: !!equipmentId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("service_orders")
+        .select("*, clients(name), technicians(name)")
+        .eq("equipment_id", equipmentId!)
         .order("scheduled_at", { ascending: false });
       if (error) throw error;
       return data as OrderWithRelations[];

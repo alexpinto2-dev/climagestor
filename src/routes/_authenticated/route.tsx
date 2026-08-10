@@ -12,6 +12,7 @@ import {
   Snowflake,
   LayoutDashboard,
   Users,
+  AirVent,
   Wrench,
   ClipboardList,
   FileText,
@@ -41,6 +42,7 @@ export const Route = createFileRoute("/_authenticated")({
 const navItems = [
   { to: "/painel", label: "Painel", icon: LayoutDashboard, adminOnly: false },
   { to: "/clientes", label: "Clientes", icon: Users, adminOnly: false },
+  { to: "/equipamentos", label: "Equipamentos", icon: AirVent, adminOnly: false },
   { to: "/tecnicos", label: "Técnicos", icon: Wrench, adminOnly: true },
   { to: "/ordens", label: "Ordens de serviço", icon: ClipboardList, adminOnly: false },
   { to: "/orcamentos", label: "Orçamentos", icon: FileText, adminOnly: true },

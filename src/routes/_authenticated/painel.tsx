@@ -6,9 +6,13 @@ import {
   CheckCircle2,
   DollarSign,
   TrendingUp,
+  AlertTriangle,
 } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import {
   useOrders,
+  useEquipments,
+  maintenanceStatus,
   formatCurrency,
   formatDateTime,
   orderStatusLabels,
@@ -53,6 +57,7 @@ function periodStart(period: Period) {
 
 function Painel() {
   const { data: orders = [], isLoading, isError } = useOrders();
+  const { data: equipments = [] } = useEquipments();
   const [period, setPeriod] = useState<Period>("mes");
 
   const now = new Date();
@@ -77,6 +82,13 @@ function Painel() {
     { label: "Ticket médio", value: formatCurrency(ticket), icon: DollarSign },
     { label: `Faturamento ${suffix}`, value: formatCurrency(revenue), icon: TrendingUp },
   ];
+
+  const overdueEquip = equipments.filter(
+    (e) => maintenanceStatus(e.next_maintenance_at) === "vencida",
+  );
+  const soonEquip = equipments.filter(
+    (e) => maintenanceStatus(e.next_maintenance_at, 30) === "proxima",
+  );
 
   const upcoming = [...orders]
     .filter((o) => o.status === "agendada" || o.status === "em_andamento")
@@ -126,6 +138,29 @@ function Painel() {
           </Card>
         ))}
       </div>
+
+      {(overdueEquip.length > 0 || soonEquip.length > 0) && (
+        <Card className={overdueEquip.length ? "border-destructive/50" : undefined}>
+          <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <AlertTriangle className="h-4 w-4 text-destructive" /> Manutenção preventiva
+            </CardTitle>
+            <Button asChild size="sm" variant="outline">
+              <Link to="/equipamentos">Ver equipamentos</Link>
+            </Button>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-6">
+            <div>
+              <p className="text-sm text-muted-foreground">Vencidas</p>
+              <p className="text-2xl font-bold text-destructive">{overdueEquip.length}</p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Próximos 30 dias</p>
+              <p className="text-2xl font-bold text-foreground">{soonEquip.length}</p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>

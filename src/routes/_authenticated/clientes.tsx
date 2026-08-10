@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Pencil, Trash2, History } from "lucide-react";
+import { Plus, Pencil, Trash2, History, AirVent } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,6 +10,8 @@ import {
   useIsAdmin,
   useProfile,
   useClientOrders,
+  useClientEquipments,
+  equipmentTypeLabels,
   clientTypeLabels,
   orderStatusLabels,
   serviceTypeLabels,
@@ -24,6 +26,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import {
+  EquipmentForm,
+  EquipmentHistory,
+  MaintenanceBadge,
+  useEquipmentSave,
+} from "@/routes/_authenticated/equipamentos";
+import type { Equipment } from "@/lib/app-data";
 import {
   Dialog,
   DialogContent,
@@ -79,6 +88,8 @@ function ClientHistory({ client }: { client: Client }) {
         ))}
       </div>
 
+      <ClientEquipments client={client} />
+
       <div className="space-y-2">
         <p className="text-sm font-medium text-foreground">Atendimentos</p>
         {isLoading && <p className="text-sm text-muted-foreground">Carregando histórico...</p>}
@@ -112,6 +123,127 @@ function ClientHistory({ client }: { client: Client }) {
 }
 
 
+
+function ClientEquipments({ client }: { client: Client }) {
+  const queryClient = useQueryClient();
+  const { data: equipments = [], isLoading } = useClientEquipments(client.id);
+  const { data: isAdmin } = useIsAdmin();
+  const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<Equipment | null>(null);
+  const [detail, setDetail] = useState<Equipment | null>(null);
+
+  const save = useEquipmentSave(() => {
+    setOpen(false);
+    setEditing(null);
+    queryClient.invalidateQueries({ queryKey: ["equipments", "client", client.id] });
+  });
+
+  const remove = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("equipments").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Equipamento removido.");
+      queryClient.invalidateQueries({ queryKey: ["equipments"] });
+      queryClient.invalidateQueries({ queryKey: ["equipments", "client", client.id] });
+    },
+    onError: () => toast.error("Não foi possível remover o equipamento."),
+  });
+
+  return (
+    <div className="space-y-2">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="flex items-center gap-2 text-sm font-medium text-foreground">
+          <AirVent className="h-4 w-4 text-primary" /> Equipamentos
+        </p>
+        {isAdmin && (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              setEditing(null);
+              setOpen(true);
+            }}
+          >
+            <Plus className="mr-1 h-4 w-4" /> Adicionar
+          </Button>
+        )}
+      </div>
+      {isLoading && <p className="text-sm text-muted-foreground">Carregando equipamentos...</p>}
+      {!isLoading && equipments.length === 0 && (
+        <p className="text-sm text-muted-foreground">Nenhum equipamento cadastrado.</p>
+      )}
+      {equipments.map((e) => (
+        <div
+          key={e.id}
+          className="flex flex-wrap items-start justify-between gap-2 rounded-lg border border-border p-3"
+        >
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-sm font-medium text-foreground">
+                {equipmentTypeLabels[e.type]}
+                {e.location ? ` — ${e.location}` : ""}
+              </p>
+              <MaintenanceBadge equipment={e} />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {[e.brand, e.model, e.btus ? `${e.btus} BTUs` : null].filter(Boolean).join(" • ") ||
+                "Sem detalhes"}
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="icon" onClick={() => setDetail(e)} title="Histórico">
+              <History className="h-4 w-4" />
+            </Button>
+            {isAdmin && (
+              <>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => {
+                    setEditing(e);
+                    setOpen(true);
+                  }}
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+                <Button variant="outline" size="icon" onClick={() => remove.mutate(e.id)}>
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
+      ))}
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{editing ? "Editar equipamento" : "Novo equipamento"}</DialogTitle>
+          </DialogHeader>
+          <EquipmentForm
+            key={editing?.id ?? "novo"}
+            editing={editing}
+            clientId={client.id}
+            lockClient
+            pending={save.isPending}
+            onSubmit={(values) => save.mutate({ values, editingId: editing?.id })}
+          />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!detail} onOpenChange={(v) => !v && setDetail(null)}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Histórico do equipamento</DialogTitle>
+          </DialogHeader>
+          {detail && <EquipmentHistory equipment={detail} />}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
 
 export const Route = createFileRoute("/_authenticated/clientes")({
   head: () => ({

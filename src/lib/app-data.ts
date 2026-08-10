@@ -7,6 +7,39 @@ export type Technician = Tables<"technicians">;
 export type ServiceOrder = Tables<"service_orders">;
 export type Quote = Tables<"quotes">;
 export type Profile = Tables<"profiles">;
+export type Equipment = Tables<"equipments">;
+
+export const equipmentTypeLabels: Record<string, string> = {
+  split: "Split",
+  janela: "Janela",
+  cassete: "Cassete",
+  piso_teto: "Piso-teto",
+  outro: "Outro",
+};
+
+export const maintenanceIntervalLabels: Record<string, string> = {
+  "3": "A cada 3 meses",
+  "6": "A cada 6 meses",
+  "12": "A cada 12 meses",
+};
+
+/** Dias até a próxima preventiva (negativo = vencida). null quando não há contrato/data. */
+export function daysToMaintenance(nextDate: string | null | undefined) {
+  if (!nextDate) return null;
+  const today = new Date();
+  const start = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const [y, m, d] = nextDate.split("-").map(Number);
+  const next = new Date(y, (m ?? 1) - 1, d ?? 1);
+  return Math.round((+next - +start) / 86400000);
+}
+
+export function maintenanceStatus(nextDate: string | null | undefined, windowDays = 30) {
+  const days = daysToMaintenance(nextDate);
+  if (days === null) return "sem_contrato" as const;
+  if (days < 0) return "vencida" as const;
+  if (days <= windowDays) return "proxima" as const;
+  return "em_dia" as const;
+}
 
 export const serviceTypeLabels: Record<string, string> = {
   instalacao: "Instalação",

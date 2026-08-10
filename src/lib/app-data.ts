@@ -214,3 +214,51 @@ export function useClientOrders(clientId: string | null) {
     },
   });
 }
+
+export type EquipmentWithClient = Equipment & { clients: { name: string } | null };
+
+export function useEquipments() {
+  return useQuery({
+    queryKey: ["equipments"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("equipments")
+        .select("*, clients(name)")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data as EquipmentWithClient[];
+    },
+  });
+}
+
+export function useClientEquipments(clientId: string | null | undefined) {
+  return useQuery({
+    queryKey: ["equipments", "client", clientId],
+    enabled: !!clientId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("equipments")
+        .select("*")
+        .eq("client_id", clientId!)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data as Equipment[];
+    },
+  });
+}
+
+export function useEquipmentOrders(equipmentId: string | null) {
+  return useQuery({
+    queryKey: ["service_orders", "equipment", equipmentId],
+    enabled: !!equipmentId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("service_orders")
+        .select("*, clients(name), technicians(name)")
+        .eq("equipment_id", equipmentId!)
+        .order("scheduled_at", { ascending: false });
+      if (error) throw error;
+      return data as OrderWithRelations[];
+    },
+  });
+}

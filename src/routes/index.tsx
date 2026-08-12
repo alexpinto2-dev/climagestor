@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Snowflake, ClipboardList, Users, FileText, BarChart3 } from "lucide-react";
+import { ClipboardList, Users, FileText, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import logoAsset from "@/assets/logo-climagestor.png.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({

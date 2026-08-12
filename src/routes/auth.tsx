@@ -51,21 +51,12 @@ function AuthPage() {
     navigate({ to: "/painel" });
   }
 
-  async function handleGoogle() {
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
-    });
-    if (result.error) return toast.error("Não foi possível entrar com o Google.");
-    if (result.redirected) return;
-    navigate({ to: "/painel" });
-  }
-
   return (
-    <div className="flex min-h-screen items-center justify-center bg-secondary px-4 py-12">
-      <div className="w-full max-w-md">
-        <div className="mb-6 flex items-center justify-center gap-2 text-lg font-semibold text-foreground">
-          <Snowflake className="h-6 w-6 text-primary" />
-          ClimaGestor
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-secondary px-4 py-12">
+      <IcePetals />
+      <div className="relative w-full max-w-md">
+        <div className="mb-6 flex justify-center">
+          <img src={logoAsset.url} alt="ClimaGestor" className="h-24 w-auto rounded-xl" />
         </div>
         <Card>
           <CardHeader>

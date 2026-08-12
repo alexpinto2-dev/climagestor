@@ -133,6 +133,36 @@
   --sidebar-ring: oklch(0.551 0.027 264.364);
 }
 
+@keyframes ice-fall {
+  0% {
+    transform: translate3d(0, -10vh, 0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(var(--petal-drift, 20px), 110vh, 0) rotate(320deg);
+    opacity: 0;
+  }
+}
+
+.ice-petal {
+  animation-name: ice-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ice-petal {
+    animation: none;
+    display: none;
+  }
+}
+
 @layer base {
   * {
     border-color: var(--color-border);

@@ -83,8 +83,15 @@ function AuthPage() {
             <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
               <span className="h-px flex-1 bg-border" /> ou <span className="h-px flex-1 bg-border" />
             </div>
-            <Button variant="outline" className="w-full" onClick={handleGoogle} type="button">
-              Continuar com Google
+            <Button variant="outline" className="w-full" asChild>
+              <a
+                href="https://wa.me/5579988028287?text=Ol%C3%A1%2C%20gostaria%20de%20solicitar%20acesso%20ao%20ClimaGestor."
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <MessageCircle className="mr-2 h-4 w-4" />
+                Solicitar Acesso
+              </a>
             </Button>
           </CardContent>
         </Card>

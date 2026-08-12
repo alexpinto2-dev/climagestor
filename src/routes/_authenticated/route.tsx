@@ -8,8 +8,8 @@ import {
   useRouterState,
 } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
+import logoAsset from "@/assets/logo-climagestor.png.asset.json";
 import {
-  Snowflake,
   LayoutDashboard,
   Users,
   AirVent,

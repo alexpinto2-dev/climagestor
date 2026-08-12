@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Snowflake } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
 import { Button } from "@/components/ui/button";
+import { IcePetals } from "@/components/IcePetals";
+import logoAsset from "@/assets/logo-climagestor.png.asset.json";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -50,21 +51,12 @@ function AuthPage() {
     navigate({ to: "/painel" });
   }
 
-  async function handleGoogle() {
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
-    });
-    if (result.error) return toast.error("Não foi possível entrar com o Google.");
-    if (result.redirected) return;
-    navigate({ to: "/painel" });
-  }
-
   return (
-    <div className="flex min-h-screen items-center justify-center bg-secondary px-4 py-12">
-      <div className="w-full max-w-md">
-        <div className="mb-6 flex items-center justify-center gap-2 text-lg font-semibold text-foreground">
-          <Snowflake className="h-6 w-6 text-primary" />
-          ClimaGestor
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-secondary px-4 py-12">
+      <IcePetals />
+      <div className="relative w-full max-w-md">
+        <div className="mb-6 flex justify-center">
+          <img src={logoAsset.url} alt="ClimaGestor" className="h-24 w-auto rounded-xl" />
         </div>
         <Card>
           <CardHeader>
@@ -91,8 +83,15 @@ function AuthPage() {
             <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
               <span className="h-px flex-1 bg-border" /> ou <span className="h-px flex-1 bg-border" />
             </div>
-            <Button variant="outline" className="w-full" onClick={handleGoogle} type="button">
-              Continuar com Google
+            <Button variant="outline" className="w-full" asChild>
+              <a
+                href="https://wa.me/5579988028287?text=Ol%C3%A1%2C%20gostaria%20de%20solicitar%20acesso%20ao%20ClimaGestor."
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <MessageCircle className="mr-2 h-4 w-4" />
+                Solicitar Acesso
+              </a>
             </Button>
           </CardContent>
         </Card>

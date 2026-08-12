@@ -112,9 +112,8 @@ function AuthenticatedLayout() {
           open ? "flex translate-x-0" : "hidden -translate-x-full md:flex",
         )}
       >
-        <div className="mb-8 flex items-center gap-2 px-2 py-2 font-semibold">
-          <Snowflake className="h-6 w-6 text-sidebar-primary" />
-          ClimaGestor
+        <div className="mb-8 px-2 py-2">
+          <img src={logoAsset.url} alt="ClimaGestor" className="h-12 w-auto" />
         </div>
         <nav className="flex-1 space-y-1">
           {items.map((item) => (

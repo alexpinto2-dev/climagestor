@@ -105,14 +105,94 @@ export function useProfile() {
       if (!userData.user) return null;
       const { data, error } = await supabase
         .from("profiles")
-        .select("*, companies(name)")
+        .select("*, companies(name, logo_url)")
         .eq("id", userData.user.id)
         .maybeSingle();
       if (error) throw error;
-      return data as (Profile & { companies: { name: string } | null }) | null;
+      return data as
+        | (Profile & { companies: { name: string; logo_url: string | null } | null })
+        | null;
     },
   });
 }
+
+export type Company = Tables<"companies">;
+export type Contract = Tables<"contracts">;
+export type TechnicalReport = Tables<"technical_reports">;
+
+export const roleLabels: Record<string, string> = {
+  admin: "Administrador",
+  administrativo: "Administrativo",
+  tecnico: "Técnico",
+};
+
+export const contractStatusLabels: Record<string, string> = {
+  ativo: "Ativo",
+  suspenso: "Suspenso",
+  encerrado: "Encerrado",
+};
+
+export const reportStatusLabels: Record<string, string> = {
+  rascunho: "Rascunho",
+  finalizado: "Finalizado",
+  entregue: "Entregue",
+};
+
+export function useCompany() {
+  return useQuery({
+    queryKey: ["company"],
+    queryFn: async () => {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) return null;
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("company_id")
+        .eq("id", userData.user.id)
+        .maybeSingle();
+      if (!profile) return null;
+      const { data, error } = await supabase
+        .from("companies")
+        .select("*")
+        .eq("id", profile.company_id)
+        .maybeSingle();
+      if (error) throw error;
+      return data as Company | null;
+    },
+  });
+}
+
+export type ContractWithClient = Contract & { clients: { name: string } | null };
+
+export function useContracts() {
+  return useQuery({
+    queryKey: ["contracts"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("contracts")
+        .select("*, clients(name)")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data as ContractWithClient[];
+    },
+  });
+}
+
+export type ReportWithClient = TechnicalReport & { clients: { name: string } | null };
+
+export function useTechnicalReports() {
+  return useQuery({
+    queryKey: ["technical_reports"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("technical_reports")
+        .select("*, clients(name)")
+        .order("report_date", { ascending: false });
+      if (error) throw error;
+      return data as ReportWithClient[];
+    },
+  });
+}
+
 
 export function useIsAdmin() {
   return useQuery({

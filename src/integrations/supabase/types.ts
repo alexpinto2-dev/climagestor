@@ -140,7 +140,10 @@ export type Database = {
       clients: {
         Row: {
           address: string | null
+          cep: string | null
+          city: string | null
           company_id: string
+          cpf_cnpj: string | null
           created_at: string
           email: string | null
           id: string
@@ -149,12 +152,17 @@ export type Database = {
           notes: string | null
           phone: string | null
           phone_e164: string | null
+          state: string | null
+          street_number: string | null
           type: Database["public"]["Enums"]["client_type"]
           updated_at: string
         }
         Insert: {
           address?: string | null
+          cep?: string | null
+          city?: string | null
           company_id: string
+          cpf_cnpj?: string | null
           created_at?: string
           email?: string | null
           id?: string
@@ -163,12 +171,17 @@ export type Database = {
           notes?: string | null
           phone?: string | null
           phone_e164?: string | null
+          state?: string | null
+          street_number?: string | null
           type?: Database["public"]["Enums"]["client_type"]
           updated_at?: string
         }
         Update: {
           address?: string | null
+          cep?: string | null
+          city?: string | null
           company_id?: string
+          cpf_cnpj?: string | null
           created_at?: string
           email?: string | null
           id?: string
@@ -177,6 +190,8 @@ export type Database = {
           notes?: string | null
           phone?: string | null
           phone_e164?: string | null
+          state?: string | null
+          street_number?: string | null
           type?: Database["public"]["Enums"]["client_type"]
           updated_at?: string
         }
@@ -193,38 +208,107 @@ export type Database = {
       companies: {
         Row: {
           active: boolean
+          address: string | null
           city: string
           cnpj: string | null
           created_at: string
           email: string | null
           id: string
+          logo_url: string | null
           name: string
           phone: string | null
+          state: string | null
           updated_at: string
         }
         Insert: {
           active?: boolean
+          address?: string | null
           city?: string
           cnpj?: string | null
           created_at?: string
           email?: string | null
           id?: string
+          logo_url?: string | null
           name: string
           phone?: string | null
+          state?: string | null
           updated_at?: string
         }
         Update: {
           active?: boolean
+          address?: string | null
           city?: string
           cnpj?: string | null
           created_at?: string
           email?: string | null
           id?: string
+          logo_url?: string | null
           name?: string
           phone?: string | null
+          state?: string | null
           updated_at?: string
         }
         Relationships: []
+      }
+      contracts: {
+        Row: {
+          amount: number | null
+          client_id: string | null
+          company_id: string
+          created_at: string
+          description: string | null
+          end_date: string | null
+          id: string
+          name: string
+          responsible: string | null
+          start_date: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number | null
+          client_id?: string | null
+          company_id: string
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          name: string
+          responsible?: string | null
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number | null
+          client_id?: string | null
+          company_id?: string
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          name?: string
+          responsible?: string | null
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contracts_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       conversations: {
         Row: {
@@ -666,6 +750,73 @@ export type Database = {
         }
         Relationships: []
       }
+      technical_reports: {
+        Row: {
+          client_id: string | null
+          company_id: string
+          conclusion: string | null
+          created_at: string
+          equipment_id: string | null
+          findings: string | null
+          id: string
+          objective: string | null
+          report_date: string
+          status: string
+          technicians: string | null
+          updated_at: string
+        }
+        Insert: {
+          client_id?: string | null
+          company_id: string
+          conclusion?: string | null
+          created_at?: string
+          equipment_id?: string | null
+          findings?: string | null
+          id?: string
+          objective?: string | null
+          report_date?: string
+          status?: string
+          technicians?: string | null
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string | null
+          company_id?: string
+          conclusion?: string | null
+          created_at?: string
+          equipment_id?: string | null
+          findings?: string | null
+          id?: string
+          objective?: string | null
+          report_date?: string
+          status?: string
+          technicians?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "technical_reports_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "technical_reports_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "technical_reports_equipment_id_fkey"
+            columns: ["equipment_id"]
+            isOneToOne: false
+            referencedRelation: "equipments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       technicians: {
         Row: {
           active: boolean
@@ -853,7 +1004,10 @@ export type Database = {
         Args: { p_company_id: string; p_name?: string; p_phone_e164: string }
         Returns: {
           address: string | null
+          cep: string | null
+          city: string | null
           company_id: string
+          cpf_cnpj: string | null
           created_at: string
           email: string | null
           id: string
@@ -862,6 +1016,8 @@ export type Database = {
           notes: string | null
           phone: string | null
           phone_e164: string | null
+          state: string | null
+          street_number: string | null
           type: Database["public"]["Enums"]["client_type"]
           updated_at: string
         }

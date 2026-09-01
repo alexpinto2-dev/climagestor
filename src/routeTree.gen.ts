@@ -18,6 +18,7 @@ import { Route as AuthenticatedEquipamentosRouteImport } from './routes/_authent
 import { Route as AuthenticatedOrcamentosRouteImport } from './routes/_authenticated/orcamentos'
 import { Route as AuthenticatedOrdensRouteImport } from './routes/_authenticated/ordens'
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
+import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
 import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
 import { Route as AuthenticatedTecnicosRouteImport } from './routes/_authenticated/tecnicos'
 import { Route as ApiPublicWhatsappClientRouteImport } from './routes/api/public/whatsapp/client'
@@ -69,6 +70,11 @@ const AuthenticatedPainelRoute = AuthenticatedPainelRouteImport.update({
   path: '/painel',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedPerfilRoute = AuthenticatedPerfilRouteImport.update({
+  id: '/perfil',
+  path: '/perfil',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedRelatoriosRoute = AuthenticatedRelatoriosRouteImport.update({
   id: '/relatorios',
   path: '/relatorios',
@@ -105,6 +111,7 @@ export interface FileRoutesByFullPath {
   '/orcamentos': typeof AuthenticatedOrcamentosRoute
   '/ordens': typeof AuthenticatedOrdensRoute
   '/painel': typeof AuthenticatedPainelRoute
+  '/perfil': typeof AuthenticatedPerfilRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/tecnicos': typeof AuthenticatedTecnicosRoute
   '/api/public/whatsapp/client': typeof ApiPublicWhatsappClientRoute
@@ -120,6 +127,7 @@ export interface FileRoutesByTo {
   '/orcamentos': typeof AuthenticatedOrcamentosRoute
   '/ordens': typeof AuthenticatedOrdensRoute
   '/painel': typeof AuthenticatedPainelRoute
+  '/perfil': typeof AuthenticatedPerfilRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/tecnicos': typeof AuthenticatedTecnicosRoute
   '/api/public/whatsapp/client': typeof ApiPublicWhatsappClientRoute
@@ -137,6 +145,7 @@ export interface FileRoutesById {
   '/_authenticated/orcamentos': typeof AuthenticatedOrcamentosRoute
   '/_authenticated/ordens': typeof AuthenticatedOrdensRoute
   '/_authenticated/painel': typeof AuthenticatedPainelRoute
+  '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
   '/_authenticated/tecnicos': typeof AuthenticatedTecnicosRoute
   '/api/public/whatsapp/client': typeof ApiPublicWhatsappClientRoute
@@ -154,6 +163,7 @@ export interface FileRouteTypes {
     | '/orcamentos'
     | '/ordens'
     | '/painel'
+    | '/perfil'
     | '/relatorios'
     | '/tecnicos'
     | '/api/public/whatsapp/client'
@@ -169,6 +179,7 @@ export interface FileRouteTypes {
     | '/orcamentos'
     | '/ordens'
     | '/painel'
+    | '/perfil'
     | '/relatorios'
     | '/tecnicos'
     | '/api/public/whatsapp/client'
@@ -185,6 +196,7 @@ export interface FileRouteTypes {
     | '/_authenticated/orcamentos'
     | '/_authenticated/ordens'
     | '/_authenticated/painel'
+    | '/_authenticated/perfil'
     | '/_authenticated/relatorios'
     | '/_authenticated/tecnicos'
     | '/api/public/whatsapp/client'
@@ -266,6 +278,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPainelRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/perfil': {
+      id: '/_authenticated/perfil'
+      path: '/perfil'
+      fullPath: '/perfil'
+      preLoaderRoute: typeof AuthenticatedPerfilRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/relatorios': {
       id: '/_authenticated/relatorios'
       path: '/relatorios'
@@ -311,6 +330,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedOrcamentosRoute: typeof AuthenticatedOrcamentosRoute
   AuthenticatedOrdensRoute: typeof AuthenticatedOrdensRoute
   AuthenticatedPainelRoute: typeof AuthenticatedPainelRoute
+  AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
   AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRoute
   AuthenticatedTecnicosRoute: typeof AuthenticatedTecnicosRoute
 }
@@ -322,6 +342,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedOrcamentosRoute: AuthenticatedOrcamentosRoute,
   AuthenticatedOrdensRoute: AuthenticatedOrdensRoute,
   AuthenticatedPainelRoute: AuthenticatedPainelRoute,
+  AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
   AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRoute,
   AuthenticatedTecnicosRoute: AuthenticatedTecnicosRoute,
 }

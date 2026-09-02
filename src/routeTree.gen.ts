@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedClientesRouteImport } from './routes/_authenticated/clientes'
+import { Route as AuthenticatedContratosRouteImport } from './routes/_authenticated/contratos'
 import { Route as AuthenticatedEmpresasRouteImport } from './routes/_authenticated/empresas'
 import { Route as AuthenticatedEquipamentosRouteImport } from './routes/_authenticated/equipamentos'
 import { Route as AuthenticatedOrcamentosRouteImport } from './routes/_authenticated/orcamentos'
@@ -42,6 +43,11 @@ const AuthRoute = AuthRouteImport.update({
 const AuthenticatedClientesRoute = AuthenticatedClientesRouteImport.update({
   id: '/clientes',
   path: '/clientes',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedContratosRoute = AuthenticatedContratosRouteImport.update({
+  id: '/contratos',
+  path: '/contratos',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedEmpresasRoute = AuthenticatedEmpresasRouteImport.update({
@@ -106,6 +112,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/clientes': typeof AuthenticatedClientesRoute
+  '/contratos': typeof AuthenticatedContratosRoute
   '/empresas': typeof AuthenticatedEmpresasRoute
   '/equipamentos': typeof AuthenticatedEquipamentosRoute
   '/orcamentos': typeof AuthenticatedOrcamentosRoute
@@ -122,6 +129,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/clientes': typeof AuthenticatedClientesRoute
+  '/contratos': typeof AuthenticatedContratosRoute
   '/empresas': typeof AuthenticatedEmpresasRoute
   '/equipamentos': typeof AuthenticatedEquipamentosRoute
   '/orcamentos': typeof AuthenticatedOrcamentosRoute
@@ -140,6 +148,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/clientes': typeof AuthenticatedClientesRoute
+  '/_authenticated/contratos': typeof AuthenticatedContratosRoute
   '/_authenticated/empresas': typeof AuthenticatedEmpresasRoute
   '/_authenticated/equipamentos': typeof AuthenticatedEquipamentosRoute
   '/_authenticated/orcamentos': typeof AuthenticatedOrcamentosRoute
@@ -158,6 +167,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/clientes'
+    | '/contratos'
     | '/empresas'
     | '/equipamentos'
     | '/orcamentos'
@@ -174,6 +184,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/clientes'
+    | '/contratos'
     | '/empresas'
     | '/equipamentos'
     | '/orcamentos'
@@ -191,6 +202,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/clientes'
+    | '/_authenticated/contratos'
     | '/_authenticated/empresas'
     | '/_authenticated/equipamentos'
     | '/_authenticated/orcamentos'
@@ -241,6 +253,13 @@ declare module '@tanstack/react-router' {
       path: '/clientes'
       fullPath: '/clientes'
       preLoaderRoute: typeof AuthenticatedClientesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/contratos': {
+      id: '/_authenticated/contratos'
+      path: '/contratos'
+      fullPath: '/contratos'
+      preLoaderRoute: typeof AuthenticatedContratosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/empresas': {
@@ -325,6 +344,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedClientesRoute: typeof AuthenticatedClientesRoute
+  AuthenticatedContratosRoute: typeof AuthenticatedContratosRoute
   AuthenticatedEmpresasRoute: typeof AuthenticatedEmpresasRoute
   AuthenticatedEquipamentosRoute: typeof AuthenticatedEquipamentosRoute
   AuthenticatedOrcamentosRoute: typeof AuthenticatedOrcamentosRoute
@@ -337,6 +357,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedClientesRoute: AuthenticatedClientesRoute,
+  AuthenticatedContratosRoute: AuthenticatedContratosRoute,
   AuthenticatedEmpresasRoute: AuthenticatedEmpresasRoute,
   AuthenticatedEquipamentosRoute: AuthenticatedEquipamentosRoute,
   AuthenticatedOrcamentosRoute: AuthenticatedOrcamentosRoute,

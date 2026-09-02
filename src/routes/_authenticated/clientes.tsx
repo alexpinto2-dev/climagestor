@@ -261,13 +261,52 @@ export const Route = createFileRoute("/_authenticated/clientes")({
 
 const schema = z.object({
   name: z.string().trim().min(2, "Informe o nome").max(150),
+  cpf_cnpj: z.string().trim().max(20).optional().or(z.literal("")),
   phone: z.string().trim().max(30).optional().or(z.literal("")),
   email: z.string().trim().max(255).email("E-mail inválido").optional().or(z.literal("")),
+  cep: z.string().trim().max(12).optional().or(z.literal("")),
   address: z.string().trim().max(255).optional().or(z.literal("")),
+  street_number: z.string().trim().max(20).optional().or(z.literal("")),
   neighborhood: z.string().trim().max(100).optional().or(z.literal("")),
+  city: z.string().trim().max(100).optional().or(z.literal("")),
+  state: z.string().trim().max(2).optional().or(z.literal("")),
   type: z.enum(["residencial", "comercial"]),
   notes: z.string().trim().max(1000).optional().or(z.literal("")),
 });
+
+const onlyDigits = (v: string) => v.replace(/\D/g, "");
+
+/** Busca endereço pelo CEP (ViaCEP) e dados da empresa pelo CNPJ (BrasilAPI). */
+async function lookupCep(cep: string) {
+  const res = await fetch(`https://viacep.com.br/ws/${onlyDigits(cep)}/json/`);
+  if (!res.ok) throw new Error("cep");
+  const data = await res.json();
+  if (data.erro) throw new Error("cep");
+  return {
+    address: data.logradouro as string,
+    neighborhood: data.bairro as string,
+    city: data.localidade as string,
+    state: data.uf as string,
+  };
+}
+
+async function lookupCnpj(cnpj: string) {
+  const res = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${onlyDigits(cnpj)}`);
+  if (!res.ok) throw new Error("cnpj");
+  const d = await res.json();
+  return {
+    name: (d.nome_fantasia || d.razao_social) as string,
+    cep: (d.cep ?? "") as string,
+    address: [d.descricao_tipo_de_logradouro, d.logradouro].filter(Boolean).join(" "),
+    street_number: (d.numero ?? "") as string,
+    neighborhood: (d.bairro ?? "") as string,
+    city: (d.municipio ?? "") as string,
+    state: (d.uf ?? "") as string,
+    phone: (d.ddd_telefone_1 ?? "") as string,
+    email: (d.email ?? "") as string,
+  };
+}
+
 
 function Clientes() {
   const queryClient = useQueryClient();

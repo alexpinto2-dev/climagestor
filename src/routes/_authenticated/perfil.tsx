@@ -188,7 +188,10 @@ function OrganizationCard() {
 
   const save = useMutation({
     mutationFn: async (values: Record<string, string | null>) => {
-      const { error } = await supabase.from("companies").update(values).eq("id", company!.id);
+      const { error } = await supabase
+        .from("companies")
+        .update(values as never)
+        .eq("id", company!.id);
       if (error) throw error;
     },
     onSuccess: () => {

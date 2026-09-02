@@ -261,13 +261,52 @@ export const Route = createFileRoute("/_authenticated/clientes")({
 
 const schema = z.object({
   name: z.string().trim().min(2, "Informe o nome").max(150),
+  cpf_cnpj: z.string().trim().max(20).optional().or(z.literal("")),
   phone: z.string().trim().max(30).optional().or(z.literal("")),
   email: z.string().trim().max(255).email("E-mail inválido").optional().or(z.literal("")),
+  cep: z.string().trim().max(12).optional().or(z.literal("")),
   address: z.string().trim().max(255).optional().or(z.literal("")),
+  street_number: z.string().trim().max(20).optional().or(z.literal("")),
   neighborhood: z.string().trim().max(100).optional().or(z.literal("")),
+  city: z.string().trim().max(100).optional().or(z.literal("")),
+  state: z.string().trim().max(2).optional().or(z.literal("")),
   type: z.enum(["residencial", "comercial"]),
   notes: z.string().trim().max(1000).optional().or(z.literal("")),
 });
+
+const onlyDigits = (v: string) => v.replace(/\D/g, "");
+
+/** Busca endereço pelo CEP (ViaCEP) e dados da empresa pelo CNPJ (BrasilAPI). */
+async function lookupCep(cep: string) {
+  const res = await fetch(`https://viacep.com.br/ws/${onlyDigits(cep)}/json/`);
+  if (!res.ok) throw new Error("cep");
+  const data = await res.json();
+  if (data.erro) throw new Error("cep");
+  return {
+    address: data.logradouro as string,
+    neighborhood: data.bairro as string,
+    city: data.localidade as string,
+    state: data.uf as string,
+  };
+}
+
+async function lookupCnpj(cnpj: string) {
+  const res = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${onlyDigits(cnpj)}`);
+  if (!res.ok) throw new Error("cnpj");
+  const d = await res.json();
+  return {
+    name: (d.nome_fantasia || d.razao_social) as string,
+    cep: (d.cep ?? "") as string,
+    address: [d.descricao_tipo_de_logradouro, d.logradouro].filter(Boolean).join(" "),
+    street_number: (d.numero ?? "") as string,
+    neighborhood: (d.bairro ?? "") as string,
+    city: (d.municipio ?? "") as string,
+    state: (d.uf ?? "") as string,
+    phone: (d.ddd_telefone_1 ?? "") as string,
+    email: (d.email ?? "") as string,
+  };
+}
+
 
 function Clientes() {
   const queryClient = useQueryClient();
@@ -283,10 +322,15 @@ function Clientes() {
     mutationFn: async (values: z.infer<typeof schema>) => {
       const payload = {
         ...values,
+        cpf_cnpj: values.cpf_cnpj || null,
         phone: values.phone || null,
         email: values.email || null,
+        cep: values.cep || null,
         address: values.address || null,
+        street_number: values.street_number || null,
         neighborhood: values.neighborhood || null,
+        city: values.city || null,
+        state: values.state || null,
         notes: values.notes || null,
       };
       if (editing) {
@@ -407,10 +451,35 @@ function Clientes() {
           <DialogHeader>
             <DialogTitle>{editing ? "Editar cliente" : "Novo cliente"}</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Nome</Label>
-              <Input id="name" name="name" defaultValue={editing?.name ?? ""} required maxLength={150} />
+          <form onSubmit={handleSubmit} className="space-y-4" ref={formRef} key={editing?.id ?? "novo"}>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="name">Nome</Label>
+                <Input id="name" name="name" defaultValue={editing?.name ?? ""} required maxLength={150} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="cpf_cnpj">CPF / CNPJ</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="cpf_cnpj"
+                    name="cpf_cnpj"
+                    defaultValue={editing?.cpf_cnpj ?? ""}
+                    maxLength={20}
+                    onBlur={(e) => {
+                      if (onlyDigits(e.target.value).length === 14) fillFromCnpj(e.target.value);
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    title="Buscar dados do CNPJ"
+                    onClick={() => fillFromCnpj(getField("cpf_cnpj"))}
+                  >
+                    <Search className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
@@ -422,33 +491,78 @@ function Clientes() {
                 <Input id="email" name="email" defaultValue={editing?.email ?? ""} maxLength={255} />
               </div>
             </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="neighborhood">Bairro</Label>
-                <Input
-                  id="neighborhood"
-                  name="neighborhood"
-                  defaultValue={editing?.neighborhood ?? ""}
-                  maxLength={100}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="type">Tipo</Label>
-                <Select name="type" defaultValue={editing?.type ?? "residencial"}>
-                  <SelectTrigger id="type">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="residencial">Residencial</SelectItem>
-                    <SelectItem value="comercial">Comercial</SelectItem>
-                  </SelectContent>
-                </Select>
+
+            <div className="space-y-4 rounded-lg border border-border p-4">
+              <p className="text-sm font-medium text-foreground">Endereço</p>
+              <div className="grid gap-4 sm:grid-cols-3">
+                <div className="space-y-2">
+                  <Label htmlFor="cep">CEP</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="cep"
+                      name="cep"
+                      defaultValue={editing?.cep ?? ""}
+                      maxLength={12}
+                      onBlur={(e) => {
+                        if (onlyDigits(e.target.value).length === 8) fillFromCep(e.target.value);
+                      }}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      title="Buscar endereço pelo CEP"
+                      onClick={() => fillFromCep(getField("cep"))}
+                    >
+                      <Search className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="address">Logradouro</Label>
+                  <Input id="address" name="address" defaultValue={editing?.address ?? ""} maxLength={255} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="street_number">Número</Label>
+                  <Input
+                    id="street_number"
+                    name="street_number"
+                    defaultValue={editing?.street_number ?? ""}
+                    maxLength={20}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="neighborhood">Bairro</Label>
+                  <Input
+                    id="neighborhood"
+                    name="neighborhood"
+                    defaultValue={editing?.neighborhood ?? ""}
+                    maxLength={100}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="city">Cidade</Label>
+                  <Input id="city" name="city" defaultValue={editing?.city ?? ""} maxLength={100} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="state">Estado</Label>
+                  <Input id="state" name="state" defaultValue={editing?.state ?? ""} maxLength={2} />
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="type">Tipo de cliente</Label>
+                  <Select name="type" defaultValue={editing?.type ?? "residencial"}>
+                    <SelectTrigger id="type">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="residencial">Residencial</SelectItem>
+                      <SelectItem value="comercial">Comercial</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="address">Endereço</Label>
-              <Input id="address" name="address" defaultValue={editing?.address ?? ""} maxLength={255} />
-            </div>
+
             <div className="space-y-2">
               <Label htmlFor="notes">Observações</Label>
               <Textarea id="notes" name="notes" defaultValue={editing?.notes ?? ""} maxLength={1000} />

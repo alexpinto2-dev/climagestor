@@ -451,10 +451,35 @@ function Clientes() {
           <DialogHeader>
             <DialogTitle>{editing ? "Editar cliente" : "Novo cliente"}</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Nome</Label>
-              <Input id="name" name="name" defaultValue={editing?.name ?? ""} required maxLength={150} />
+          <form onSubmit={handleSubmit} className="space-y-4" ref={formRef} key={editing?.id ?? "novo"}>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="name">Nome</Label>
+                <Input id="name" name="name" defaultValue={editing?.name ?? ""} required maxLength={150} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="cpf_cnpj">CPF / CNPJ</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="cpf_cnpj"
+                    name="cpf_cnpj"
+                    defaultValue={editing?.cpf_cnpj ?? ""}
+                    maxLength={20}
+                    onBlur={(e) => {
+                      if (onlyDigits(e.target.value).length === 14) fillFromCnpj(e.target.value);
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    title="Buscar dados do CNPJ"
+                    onClick={() => fillFromCnpj(getField("cpf_cnpj"))}
+                  >
+                    <Search className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
@@ -466,33 +491,78 @@ function Clientes() {
                 <Input id="email" name="email" defaultValue={editing?.email ?? ""} maxLength={255} />
               </div>
             </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="neighborhood">Bairro</Label>
-                <Input
-                  id="neighborhood"
-                  name="neighborhood"
-                  defaultValue={editing?.neighborhood ?? ""}
-                  maxLength={100}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="type">Tipo</Label>
-                <Select name="type" defaultValue={editing?.type ?? "residencial"}>
-                  <SelectTrigger id="type">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="residencial">Residencial</SelectItem>
-                    <SelectItem value="comercial">Comercial</SelectItem>
-                  </SelectContent>
-                </Select>
+
+            <div className="space-y-4 rounded-lg border border-border p-4">
+              <p className="text-sm font-medium text-foreground">Endereço</p>
+              <div className="grid gap-4 sm:grid-cols-3">
+                <div className="space-y-2">
+                  <Label htmlFor="cep">CEP</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="cep"
+                      name="cep"
+                      defaultValue={editing?.cep ?? ""}
+                      maxLength={12}
+                      onBlur={(e) => {
+                        if (onlyDigits(e.target.value).length === 8) fillFromCep(e.target.value);
+                      }}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      title="Buscar endereço pelo CEP"
+                      onClick={() => fillFromCep(getField("cep"))}
+                    >
+                      <Search className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="address">Logradouro</Label>
+                  <Input id="address" name="address" defaultValue={editing?.address ?? ""} maxLength={255} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="street_number">Número</Label>
+                  <Input
+                    id="street_number"
+                    name="street_number"
+                    defaultValue={editing?.street_number ?? ""}
+                    maxLength={20}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="neighborhood">Bairro</Label>
+                  <Input
+                    id="neighborhood"
+                    name="neighborhood"
+                    defaultValue={editing?.neighborhood ?? ""}
+                    maxLength={100}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="city">Cidade</Label>
+                  <Input id="city" name="city" defaultValue={editing?.city ?? ""} maxLength={100} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="state">Estado</Label>
+                  <Input id="state" name="state" defaultValue={editing?.state ?? ""} maxLength={2} />
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="type">Tipo de cliente</Label>
+                  <Select name="type" defaultValue={editing?.type ?? "residencial"}>
+                    <SelectTrigger id="type">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="residencial">Residencial</SelectItem>
+                      <SelectItem value="comercial">Comercial</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="address">Endereço</Label>
-              <Input id="address" name="address" defaultValue={editing?.address ?? ""} maxLength={255} />
-            </div>
+
             <div className="space-y-2">
               <Label htmlFor="notes">Observações</Label>
               <Textarea id="notes" name="notes" defaultValue={editing?.notes ?? ""} maxLength={1000} />

@@ -322,10 +322,15 @@ function Clientes() {
     mutationFn: async (values: z.infer<typeof schema>) => {
       const payload = {
         ...values,
+        cpf_cnpj: values.cpf_cnpj || null,
         phone: values.phone || null,
         email: values.email || null,
+        cep: values.cep || null,
         address: values.address || null,
+        street_number: values.street_number || null,
         neighborhood: values.neighborhood || null,
+        city: values.city || null,
+        state: values.state || null,
         notes: values.notes || null,
       };
       if (editing) {

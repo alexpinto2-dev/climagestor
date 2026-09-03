@@ -46,8 +46,12 @@ const navItems = [
   { to: "/tecnicos", label: "Técnicos", icon: Wrench, adminOnly: true },
   { to: "/ordens", label: "Ordens de serviço", icon: ClipboardList, adminOnly: false },
   { to: "/orcamentos", label: "Orçamentos", icon: FileText, adminOnly: true },
+  { to: "/laudos", label: "Laudos", icon: FileCheck2, adminOnly: false },
+  { to: "/contratos", label: "Contratos", icon: FileSignature, adminOnly: true },
   { to: "/relatorios", label: "Relatórios", icon: BarChart3, adminOnly: true },
+  { to: "/perfil", label: "Perfil", icon: UserCog, adminOnly: false },
 ] as const;
+
 
 function NoCompany({ onSignOut }: { onSignOut: () => void }) {
   return (

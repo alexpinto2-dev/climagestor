@@ -120,8 +120,13 @@ function AuthenticatedLayout() {
         )}
       >
         <div className="mb-8 px-2 py-2">
-          <img src={logoAsset.url} alt="ClimaGestor" className="h-12 w-auto" />
+          <img
+            src={profile?.companies?.logo_url || logoAsset.url}
+            alt={profile?.companies?.name || "ClimaGestor"}
+            className="max-h-14 w-auto"
+          />
         </div>
+
         <nav className="flex-1 space-y-1">
           {items.map((item) => (
             <Link

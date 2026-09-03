@@ -317,6 +317,52 @@ function Clientes() {
   const [editing, setEditing] = useState<Client | null>(null);
   const [open, setOpen] = useState(false);
   const [history, setHistory] = useState<Client | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  function getField(name: string) {
+    const el = formRef.current?.elements.namedItem(name) as HTMLInputElement | null;
+    return el?.value ?? "";
+  }
+
+  function setField(name: string, value: string) {
+    const el = formRef.current?.elements.namedItem(name) as HTMLInputElement | null;
+    if (el && value) el.value = value;
+  }
+
+  async function fillFromCep(cep: string) {
+    if (onlyDigits(cep).length !== 8) return toast.error("Informe um CEP válido.");
+    try {
+      const d = await lookupCep(cep);
+      setField("address", d.address);
+      setField("neighborhood", d.neighborhood);
+      setField("city", d.city);
+      setField("state", d.state);
+      toast.success("Endereço preenchido pelo CEP.");
+    } catch {
+      toast.error("CEP não encontrado.");
+    }
+  }
+
+  async function fillFromCnpj(cnpj: string) {
+    if (onlyDigits(cnpj).length !== 14) return toast.error("Informe um CNPJ válido.");
+    try {
+      const d = await lookupCnpj(cnpj);
+      setField("name", d.name);
+      setField("cep", d.cep);
+      setField("address", d.address);
+      setField("street_number", d.street_number);
+      setField("neighborhood", d.neighborhood);
+      setField("city", d.city);
+      setField("state", d.state);
+      setField("phone", d.phone);
+      setField("email", d.email);
+      toast.success("Dados do CNPJ preenchidos.");
+    } catch {
+      toast.error("CNPJ não encontrado.");
+    }
+  }
+
+
 
   const save = useMutation({
     mutationFn: async (values: z.infer<typeof schema>) => {

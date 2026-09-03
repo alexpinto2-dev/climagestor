@@ -20,6 +20,9 @@ import {
   Building2,
   LogOut,
   Menu,
+  FileCheck2,
+  FileSignature,
+  UserCog,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile, useIsAdmin, useIsSuperAdmin } from "@/lib/app-data";

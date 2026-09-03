@@ -342,3 +342,109 @@ export function useEquipmentOrders(equipmentId: string | null) {
     },
   });
 }
+
+/* ------------------------- WhatsApp / Atendimento por IA ------------------------- */
+
+export type WhatsappInstance = Tables<"whatsapp_instances">;
+export type Conversation = Tables<"conversations">;
+export type Message = Tables<"messages">;
+
+export const whatsappProviderLabels: Record<string, string> = {
+  evolution: "Evolution API",
+  whatsapp_cloud: "WhatsApp Cloud API",
+  outro: "Outro",
+};
+
+export const whatsappStatusLabels: Record<string, string> = {
+  active: "Ativa",
+  paused: "Pausada",
+  inactive: "Inativa",
+};
+
+export const conversationStatusLabels: Record<string, string> = {
+  aberta: "Em andamento",
+  encerrada: "Encerrada",
+};
+
+export const messageAuthorLabels: Record<string, string> = {
+  client: "Cliente",
+  ai: "IA",
+  human: "Atendente",
+  system: "Sistema",
+};
+
+export function useWhatsappInstances() {
+  return useQuery({
+    queryKey: ["whatsapp_instances"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("whatsapp_instances")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data as WhatsappInstance[];
+    },
+  });
+}
+
+export type ConversationWithClient = Conversation & { clients: { name: string } | null };
+
+export function useConversations() {
+  return useQuery({
+    queryKey: ["conversations"],
+    refetchInterval: 12000,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("conversations")
+        .select("*, clients(name)")
+        .order("last_message_at", { ascending: false, nullsFirst: false })
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data as ConversationWithClient[];
+    },
+  });
+}
+
+export function useConversationMessages(conversationId: string | null) {
+  return useQuery({
+    queryKey: ["messages", conversationId],
+    enabled: !!conversationId,
+    refetchInterval: 12000,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("messages")
+        .select("*")
+        .eq("conversation_id", conversationId!)
+        .order("created_at", { ascending: true });
+      if (error) throw error;
+      return data as Message[];
+    },
+  });
+}
+
+/** Ordem criada pela IA a partir da conversa (audit_log só é legível por admin). */
+export function useConversationAiOrder(conversationId: string | null, enabled: boolean) {
+  return useQuery({
+    queryKey: ["conversation-ai-order", conversationId],
+    enabled: !!conversationId && enabled,
+    queryFn: async () => {
+      const { data: logs, error } = await supabase
+        .from("audit_log")
+        .select("entity_id, created_at")
+        .eq("entity_type", "service_order")
+        .eq("action", "created_by_ai")
+        .eq("metadata->>conversation_id", conversationId!)
+        .order("created_at", { ascending: false })
+        .limit(1);
+      if (error) return null;
+      const entityId = logs?.[0]?.entity_id;
+      if (!entityId) return null;
+      const { data: order } = await supabase
+        .from("service_orders")
+        .select("*, clients(name), technicians(name)")
+        .eq("id", entityId)
+        .maybeSingle();
+      return (order as OrderWithRelations | null) ?? null;
+    },
+  });
+}

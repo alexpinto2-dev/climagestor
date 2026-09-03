@@ -20,6 +20,9 @@ import {
   Building2,
   LogOut,
   Menu,
+  FileCheck2,
+  FileSignature,
+  UserCog,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile, useIsAdmin, useIsSuperAdmin } from "@/lib/app-data";
@@ -46,8 +49,12 @@ const navItems = [
   { to: "/tecnicos", label: "Técnicos", icon: Wrench, adminOnly: true },
   { to: "/ordens", label: "Ordens de serviço", icon: ClipboardList, adminOnly: false },
   { to: "/orcamentos", label: "Orçamentos", icon: FileText, adminOnly: true },
+  { to: "/laudos", label: "Laudos", icon: FileCheck2, adminOnly: false },
+  { to: "/contratos", label: "Contratos", icon: FileSignature, adminOnly: true },
   { to: "/relatorios", label: "Relatórios", icon: BarChart3, adminOnly: true },
+  { to: "/perfil", label: "Perfil", icon: UserCog, adminOnly: false },
 ] as const;
+
 
 function NoCompany({ onSignOut }: { onSignOut: () => void }) {
   return (
@@ -113,8 +120,13 @@ function AuthenticatedLayout() {
         )}
       >
         <div className="mb-8 px-2 py-2">
-          <img src={logoAsset.url} alt="ClimaGestor" className="h-12 w-auto" />
+          <img
+            src={profile?.companies?.logo_url || logoAsset.url}
+            alt={profile?.companies?.name || "ClimaGestor"}
+            className="max-h-14 w-auto"
+          />
         </div>
+
         <nav className="flex-1 space-y-1">
           {items.map((item) => (
             <Link

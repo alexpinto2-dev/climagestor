@@ -23,6 +23,7 @@ import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
 import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
 import { Route as AuthenticatedTecnicosRouteImport } from './routes/_authenticated/tecnicos'
+import { Route as AuthenticatedWhatsappRouteImport } from './routes/_authenticated/whatsapp'
 import { Route as ApiPublicWhatsappClientRouteImport } from './routes/api/public/whatsapp/client'
 import { Route as ApiPublicWhatsappMessageRouteImport } from './routes/api/public/whatsapp/message'
 import { Route as ApiPublicWhatsappOrderRouteImport } from './routes/api/public/whatsapp/order'
@@ -97,6 +98,11 @@ const AuthenticatedTecnicosRoute = AuthenticatedTecnicosRouteImport.update({
   path: '/tecnicos',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedWhatsappRoute = AuthenticatedWhatsappRouteImport.update({
+  id: '/whatsapp',
+  path: '/whatsapp',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const ApiPublicWhatsappClientRoute = ApiPublicWhatsappClientRouteImport.update({
   id: '/api/public/whatsapp/client',
   path: '/api/public/whatsapp/client',
@@ -128,6 +134,7 @@ export interface FileRoutesByFullPath {
   '/perfil': typeof AuthenticatedPerfilRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/tecnicos': typeof AuthenticatedTecnicosRoute
+  '/whatsapp': typeof AuthenticatedWhatsappRoute
   '/api/public/whatsapp/client': typeof ApiPublicWhatsappClientRoute
   '/api/public/whatsapp/message': typeof ApiPublicWhatsappMessageRoute
   '/api/public/whatsapp/order': typeof ApiPublicWhatsappOrderRoute
@@ -146,6 +153,7 @@ export interface FileRoutesByTo {
   '/perfil': typeof AuthenticatedPerfilRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/tecnicos': typeof AuthenticatedTecnicosRoute
+  '/whatsapp': typeof AuthenticatedWhatsappRoute
   '/api/public/whatsapp/client': typeof ApiPublicWhatsappClientRoute
   '/api/public/whatsapp/message': typeof ApiPublicWhatsappMessageRoute
   '/api/public/whatsapp/order': typeof ApiPublicWhatsappOrderRoute
@@ -166,6 +174,7 @@ export interface FileRoutesById {
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
   '/_authenticated/tecnicos': typeof AuthenticatedTecnicosRoute
+  '/_authenticated/whatsapp': typeof AuthenticatedWhatsappRoute
   '/api/public/whatsapp/client': typeof ApiPublicWhatsappClientRoute
   '/api/public/whatsapp/message': typeof ApiPublicWhatsappMessageRoute
   '/api/public/whatsapp/order': typeof ApiPublicWhatsappOrderRoute
@@ -186,6 +195,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/relatorios'
     | '/tecnicos'
+    | '/whatsapp'
     | '/api/public/whatsapp/client'
     | '/api/public/whatsapp/message'
     | '/api/public/whatsapp/order'
@@ -204,6 +214,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/relatorios'
     | '/tecnicos'
+    | '/whatsapp'
     | '/api/public/whatsapp/client'
     | '/api/public/whatsapp/message'
     | '/api/public/whatsapp/order'
@@ -223,6 +234,7 @@ export interface FileRouteTypes {
     | '/_authenticated/perfil'
     | '/_authenticated/relatorios'
     | '/_authenticated/tecnicos'
+    | '/_authenticated/whatsapp'
     | '/api/public/whatsapp/client'
     | '/api/public/whatsapp/message'
     | '/api/public/whatsapp/order'
@@ -337,6 +349,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTecnicosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/whatsapp': {
+      id: '/_authenticated/whatsapp'
+      path: '/whatsapp'
+      fullPath: '/whatsapp'
+      preLoaderRoute: typeof AuthenticatedWhatsappRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/public/whatsapp/client': {
       id: '/api/public/whatsapp/client'
       path: '/api/public/whatsapp/client'
@@ -373,6 +392,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
   AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRoute
   AuthenticatedTecnicosRoute: typeof AuthenticatedTecnicosRoute
+  AuthenticatedWhatsappRoute: typeof AuthenticatedWhatsappRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -387,6 +407,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
   AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRoute,
   AuthenticatedTecnicosRoute: AuthenticatedTecnicosRoute,
+  AuthenticatedWhatsappRoute: AuthenticatedWhatsappRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

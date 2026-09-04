@@ -23,6 +23,8 @@ import {
   FileCheck2,
   FileSignature,
   UserCog,
+  Bot,
+  MessageSquare,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile, useIsAdmin, useIsSuperAdmin } from "@/lib/app-data";
@@ -51,6 +53,8 @@ const navItems = [
   { to: "/orcamentos", label: "Orçamentos", icon: FileText, adminOnly: true },
   { to: "/laudos", label: "Laudos", icon: FileCheck2, adminOnly: false },
   { to: "/contratos", label: "Contratos", icon: FileSignature, adminOnly: true },
+  { to: "/whatsapp", label: "Atendimento por IA", icon: Bot, adminOnly: true },
+  { to: "/conversas", label: "Conversas", icon: MessageSquare, adminOnly: false },
   { to: "/relatorios", label: "Relatórios", icon: BarChart3, adminOnly: true },
   { to: "/perfil", label: "Perfil", icon: UserCog, adminOnly: false },
 ] as const;

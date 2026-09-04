@@ -23,6 +23,8 @@ import {
   FileCheck2,
   FileSignature,
   UserCog,
+  Bot,
+  MessageSquare,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile, useIsAdmin, useIsSuperAdmin } from "@/lib/app-data";
